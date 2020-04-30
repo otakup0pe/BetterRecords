@@ -24,7 +24,7 @@
 package tech.feldman.betterrecords.util
 
 import tech.feldman.betterrecords.BetterRecords
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.BetterRecordsConfig
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -47,7 +47,7 @@ fun downloadFile(url: URL, target: File,
         return
     }
 
-    if (size / 1024 / 1024 > ModConfig.client.downloadMax) {
+    if (size / 1024 / 1024 > BetterRecordsConfig.CLIENT.downloadMax.get()) {
         failure()
         return
     }

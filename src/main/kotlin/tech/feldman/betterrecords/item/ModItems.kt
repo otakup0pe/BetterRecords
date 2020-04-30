@@ -23,19 +23,24 @@
  */
 package tech.feldman.betterrecords.item
 
-import tech.feldman.betterrecords.ID
+import tech.feldman.betterrecords.MOD_ID
 import net.minecraft.item.Item
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import tech.feldman.betterrecords.BetterRecords
 
-@Mod.EventBusSubscriber(modid = ID)
+@Mod.EventBusSubscriber(modid = MOD_ID)
 object ModItems {
 
-    val itemRecord: ModItem = ItemRecord("record")
-    val itemFrequencyCrystal: ModItem = ItemFrequencyCrystal("frequencycrystal")
-    val itemWire: ModItem = ItemWire("wire")
-    val itemWireCutters: ModItem = ItemWireCutter("wirecutters")
+    val itemRecord: ModItem = ItemRecord(defaultBuilder())
+    val itemFrequencyCrystal: ModItem = ItemFrequencyCrystal(defaultBuilder())
+    val itemWire: ModItem = ItemWire(defaultBuilder())
+    val itemWireCutters: ModItem = ItemWireCutter(defaultBuilder())
+
+    fun defaultBuilder(): Item.Properties {
+        return Item.Properties().group(BetterRecords.itemGroup)
+    }
 
     @SubscribeEvent
     fun registerItems(event: RegistryEvent.Register<Item>) {

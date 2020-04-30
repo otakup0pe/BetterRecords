@@ -27,8 +27,8 @@ import tech.feldman.betterrecords.api.connection.RecordConnection
 import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
 import tech.feldman.betterrecords.item.ModItems
-import net.minecraft.block.state.IBlockState
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.block.BlockState
+import net.minecraft.entity.item.ItemEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.BlockPos
@@ -97,7 +97,7 @@ object ConnectionHelper {
         return ret
     }
 
-    fun addConnection(world: World, iRecordWire: IRecordWire, rec: RecordConnection, state: IBlockState) {
+    fun addConnection(world: World, iRecordWire: IRecordWire, rec: RecordConnection, state: BlockState) {
         (0 until iRecordWire.connections.size)
                 .filter { iRecordWire.connections[it].same(rec) }
                 .forEach { return }
@@ -126,12 +126,14 @@ object ConnectionHelper {
                     val ry = rand.nextFloat() * 0.8f + 0.1f
                     val rz = rand.nextFloat() * 0.8f + 0.1f
 
-                    val entityItem = EntityItem(world, (te.pos.x + rx).toDouble(), (te.pos.y + ry).toDouble(), (te.pos.z + rz).toDouble(), ItemStack(ModItems.itemWire))
+                    val itemEntity = ItemEntity(world, (te.pos.x + rx).toDouble(), (te.pos.y + ry).toDouble(), (te.pos.z + rz).toDouble(), ItemStack(ModItems.itemWire))
 
-                    entityItem.motionX = rand.nextGaussian() * 0.05f
-                    entityItem.motionY = rand.nextGaussian() * 0.05f + 0.2f
-                    entityItem.motionZ = rand.nextGaussian() * 0.05f
-                    world.spawnEntity(entityItem)
+                    itemEntity.setMotion(
+                            rand.nextGaussian() * 0.05f,
+                            rand.nextGaussian() * 0.05f + 0.2f,
+                            rand.nextGaussian() * 0.05f
+                    )
+                    world.addEntity(itemEntity)
 
                     removeConnection(world, te as IRecordWire, rec)
                 }

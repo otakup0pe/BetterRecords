@@ -23,31 +23,32 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
+import tech.feldman.betterrecords.MOD_ID
 import tech.feldman.betterrecords.block.tile.TileRecordPlayer
 import tech.feldman.betterrecords.client.model.ModelRecordPlayer
 import tech.feldman.betterrecords.client.render.helper.renderConnectionsAndInfo
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import com.mojang.blaze3d.platform.GlStateManager.*
+import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.util.ResourceLocation
 
-class RenderRecordPlayer : TileEntitySpecialRenderer<TileRecordPlayer>() {
+class RenderRecordPlayer : TileEntityRenderer<TileRecordPlayer>() {
 
     val MODEL = ModelRecordPlayer()
-    val TEXTURE = ResourceLocation(ID, "textures/models/recordplayer.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/recordplayer.png")
 
-    override fun render(te: TileRecordPlayer?, x: Double, y: Double, z: Double, scale: Float, destroyStage: Int, alpha: Float) {
+    override fun render(te: TileRecordPlayer?, x: Double, y: Double, z: Double, scale: Float, destroyStage: Int) {
 
         //region RENDER_BLOCK
         pushMatrix()
 
-        translate(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
-        rotate(180f, 0.0f, 0.0f, 1.0f)
+        translatef(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
+        rotatef(180f, 0.0f, 0.0f, 1.0f)
 
-        val metadata = te?.blockMetadata ?: 0
-        rotate(metadata * 90 + 180F, 0.0f, 1.0f, 0.0f)
+        // TODO: ROTATE BASED ON STATE
+        // val metadata = te?.blockMetadata ?: 0
+        // rotatef(metadata * 90 + 180F, 0.0f, 1.0f, 0.0f)
 
         bindTexture(TEXTURE)
 
@@ -64,15 +65,16 @@ class RenderRecordPlayer : TileEntitySpecialRenderer<TileRecordPlayer>() {
             te.recordEntity?.let {
                 pushMatrix()
 
-                translate(x.toFloat() + .5f, y.toFloat() + .76f, z.toFloat() + .5f)
-                rotate(90f, 1f, 0f, 0f)
-                rotate(te.recordRotation * 57.3f, 0f, 0f, 1f)
+                translatef(x.toFloat() + .5f, y.toFloat() + .76f, z.toFloat() + .5f)
+                rotatef(90f, 1f, 0f, 0f)
+                rotatef(te.recordRotation * 57.3f, 0f, 0f, 1f)
                 disableLighting()
                 disableCull()
-                Minecraft.getMinecraft().renderItem.renderItem(te.recordEntity?.item, ItemCameraTransforms.TransformType.NONE)
+                // TODO deprecated
+                Minecraft.getInstance().itemRenderer.renderItem(te.recordEntity?.item, ItemCameraTransforms.TransformType.NONE)
                 enableLighting()
                 enableCull()
-                color(1f, 1f, 1f)
+                color3f(1f, 1f, 1f)
 
                 popMatrix()
             }

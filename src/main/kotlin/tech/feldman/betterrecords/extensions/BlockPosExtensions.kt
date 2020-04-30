@@ -24,10 +24,12 @@
 package tech.feldman.betterrecords.extensions
 
 import net.minecraft.util.math.BlockPos
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun BlockPos.distanceTo(pos: BlockPos) =
-        Math.sqrt(
-                Math.pow((x - pos.x).toDouble(), 2.0)
-                        + Math.pow((y - pos.y).toDouble(), 2.0)
-                        + Math.pow((z - pos.z).toDouble(), 2.0)
+        sqrt(
+                (x - pos.x).toDouble().pow(2.0)
+                        + (y - pos.y).toDouble().pow(2.0)
+                        + (z - pos.z).toDouble().pow(2.0)
         ).toInt()

@@ -30,23 +30,29 @@ import tech.feldman.betterrecords.api.wire.IRecordWireManipulator
 import tech.feldman.betterrecords.helper.ConnectionHelper
 import tech.feldman.betterrecords.network.PacketHandler
 import tech.feldman.betterrecords.network.PacketWireConnection
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemUseContext
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.EnumActionResult
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
+import net.minecraft.util.ActionResultType
+import net.minecraft.util.Direction
+import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-class ItemWire(name: String) : ModItem(name), IRecordWireManipulator {
+class ItemWire(properties: Properties) : ModItem(properties), IRecordWireManipulator {
 
     companion object {
         var connection: RecordConnection? = null
     }
 
-    override fun onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult {
+    override fun onItemUse(context: ItemUseContext): ActionResultType {
+        val world = context.world
+        val pos = context.pos
+        val player = context.player!!
+        val hand = context.hand
+
         if (!world.isRemote) {
-            return EnumActionResult.PASS
+            return ActionResultType.PASS
         }
 
         (world.getTileEntity(pos) as? IRecordWire)?.let { te ->
@@ -58,7 +64,7 @@ class ItemWire(name: String) : ModItem(name), IRecordWireManipulator {
 
                 if (Math.sqrt(Math.pow(x1.toDouble(), 2.toDouble()) + Math.pow(y1.toDouble(), 2.toDouble()) + Math.pow(z1.toDouble(), 2.toDouble())) > 7 || it.sameInitial(pos.x, pos.y, pos.z)) {
                     connection = null
-                    return EnumActionResult.PASS
+                    return ActionResultType.PASS
                 }
 
                 if (!it.fromHome) {
@@ -72,20 +78,20 @@ class ItemWire(name: String) : ModItem(name), IRecordWireManipulator {
 
                 if (te2 is IRecordWire) {
                     if (!(te1 is IRecordWireHome && te2 is IRecordWireHome)) {
-                        ConnectionHelper.addConnection((te as TileEntity).world, te1 as IRecordWire, connection!!, world.getBlockState(te.pos))
-                        ConnectionHelper.addConnection((te as TileEntity).world, te2 as IRecordWire, connection!!, world.getBlockState(te.pos))
+                        ConnectionHelper.addConnection((te as TileEntity).world!!, te1 as IRecordWire, connection!!, world.getBlockState(te.pos))
+                        ConnectionHelper.addConnection((te as TileEntity).world!!, te2 as IRecordWire, connection!!, world.getBlockState(te.pos))
                         PacketHandler.sendToServer(PacketWireConnection(connection!!))
                         player.getHeldItem(hand).count--
                     }
                 }
 
                 connection = null
-                return EnumActionResult.PASS
+                return ActionResultType.PASS
             }
 
             connection = RecordConnection(pos.x, pos.y, pos.z, te is IRecordWireHome)
         }
 
-        return EnumActionResult.PASS
+        return ActionResultType.PASS
     }
 }

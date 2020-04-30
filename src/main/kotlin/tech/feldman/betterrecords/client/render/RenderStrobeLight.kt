@@ -23,55 +23,55 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.MOD_ID
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.block.tile.TileStrobeLight
 import tech.feldman.betterrecords.client.model.ModelStrobeLight
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import com.mojang.blaze3d.platform.GlStateManager.*;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-class RenderStrobeLight : TileEntitySpecialRenderer<TileStrobeLight>() {
+class RenderStrobeLight : TileEntityRenderer<TileStrobeLight>() {
 
     val MODEL = ModelStrobeLight()
-    val TEXTURE = ResourceLocation(ID, "textures/models/strobelight.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/strobelight.png")
 
-    override fun render(te: TileStrobeLight?, x: Double, y: Double, z: Double, scale: Float, destroyStage: Int, alpha: Float) {
+    override fun render(te: TileStrobeLight?, x: Double, y: Double, z: Double, scale: Float, destroyStage: Int) {
 
         pushMatrix()
 
-        translate(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
-        rotate(180f, 0.0f, 0.0f, 1.0f)
+        translatef(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
+        rotatef(180f, 0.0f, 0.0f, 1.0f)
 
         bindTexture(TEXTURE)
         MODEL.render(null, 0f, 0f, 0f, 0.0f, 0.0f, 0.0625f)
 
-        translate(0.0f, 1.0f, 0.0f)
+        translatef(0.0f, 1.0f, 0.0f)
 
         te?.let {
 
-            if (te.bass != 0F && ModConfig.client.flashMode > 0) {
+            if (te.bass != 0F && BetterRecordsConfig.CLIENT.flashMode.get() > 0) {
                 val incr = (2 * Math.PI / 10).toFloat()
 
                 pushMatrix()
 
-                rotate(Minecraft.getMinecraft().renderManager.playerViewY - 180f, 0f, 1f, 0f)
-                rotate(Minecraft.getMinecraft().renderManager.playerViewX, 1f, 0f, 0f)
+                rotatef(Minecraft.getInstance().renderManager.playerViewY - 180f, 0f, 1f, 0f)
+                rotatef(Minecraft.getInstance().renderManager.playerViewX, 1f, 0f, 0f)
 
-                disableDepth()
+                disableDepthTest()
                 disableLighting()
-                disableTexture2D()
+                disableTexture()
                 enableBlend()
 
                 var trans = .2f
                 while (trans < .6f) {
-                    scale(.9f, .9f, 1f)
-                    rotate(20f, 0f, 0f, 1f)
-                    glBegin(GL11.GL_TRIANGLE_FAN)
+                    scalef(.9f, .9f, 1f)
+                    rotatef(20f, 0f, 0f, 1f)
+                    begin(GL11.GL_TRIANGLE_FAN)
 
-                    color(1f, 1f, 1f, trans / if (ModConfig.client.flashMode == 1) 3f else 1f)
+                    color4f(1f, 1f, 1f, trans / if (BetterRecordsConfig.CLIENT.flashMode.get() == 1) 3f else 1f)
                     GL11.glVertex2f(0f, 0f)
 
                     for (i in 0..9) {
@@ -84,21 +84,21 @@ class RenderStrobeLight : TileEntitySpecialRenderer<TileStrobeLight>() {
 
                     GL11.glVertex2f(te.bass, 0f)
 
-                    glEnd()
+                    end()
                     trans += .2f
                 }
 
                 disableBlend()
-                enableTexture2D()
+                enableTexture()
                 enableLighting()
-                enableDepth()
+                enableDepthTest()
 
                 popMatrix()
 
-                color(1f, 1f, 1f, 1f)
+                color4f(1f, 1f, 1f, 1f)
 
-                if (ModConfig.client.flashMode > 1) {
-                    val mc = Minecraft.getMinecraft()
+                if (BetterRecordsConfig.CLIENT.flashMode.get() > 1) {
+                    val mc = Minecraft.getInstance()
                     val dist = Math.sqrt(Math.pow(te.pos.x - mc.player.posX, 2.0) + Math.pow(te.pos.y - mc.player.posY, 2.0) + Math.pow(te.pos.z - mc.player.posZ, 2.0)).toFloat()
                     if (dist < 4 * te.bass) {
                         val newStrobe = Math.abs(dist - 4f * te.bass) / 100f

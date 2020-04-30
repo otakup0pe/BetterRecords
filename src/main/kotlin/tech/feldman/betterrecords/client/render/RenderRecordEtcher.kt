@@ -23,37 +23,38 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
+import tech.feldman.betterrecords.MOD_ID
 import tech.feldman.betterrecords.block.tile.TileRecordEtcher
 import tech.feldman.betterrecords.client.model.ModelRecordEtcher
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import com.mojang.blaze3d.platform.GlStateManager.*
+import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.util.ResourceLocation
 
-class RenderRecordEtcher : TileEntitySpecialRenderer<TileRecordEtcher>() {
+class RenderRecordEtcher : TileEntityRenderer<TileRecordEtcher>() {
 
     val MODEL = ModelRecordEtcher()
-    val TEXTURE = ResourceLocation(ID, "textures/models/recordetcher.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/recordetcher.png")
 
-    override fun render(te: TileRecordEtcher?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int, alpha: Float) {
+    override fun render(te: TileRecordEtcher?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int) {
 
         te?.recordEntity?.let {
             pushMatrix()
 
-            translate(x + 0.5F, y + .65F, z + 0.5F)
-            rotate(90F, 1F, 0F, 0F)
-            rotate(te.recordRotation * 57.3F, 0F, 0F, 1F)
+            translated(x + 0.5, y + .65, z + 0.5)
+            rotatef(90F, 1F, 0F, 0F)
+            rotatef(te.recordRotation * 57.3F, 0F, 0F, 1F)
 
-            Minecraft.getMinecraft().renderItem.renderItem(it.item, ItemCameraTransforms.TransformType.NONE)
+            // TODO deprecated
+            Minecraft.getInstance().itemRenderer.renderItem(it.item, ItemCameraTransforms.TransformType.NONE)
 
             popMatrix()
         }
 
         pushMatrix()
-        translate(x + 0.5F, y + 1.5F, z + 0.5F)
-        rotate(180F, 0F, 0F, 1F)
+        translated(x + 0.5, y + 1.5, z + 0.5)
+        rotatef(180F, 0F, 0F, 1F)
         bindTexture(TEXTURE)
 
         val needleLocation = te?.needleLocation ?: 0F

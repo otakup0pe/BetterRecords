@@ -23,14 +23,15 @@
  */
 package tech.feldman.betterrecords.block.tile
 
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.api.connection.RecordConnection
 import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
-import net.minecraft.util.ITickable
+import net.minecraft.tileentity.ITickableTileEntity
+import net.minecraft.tileentity.TileEntityType
 import java.util.*
 
-abstract class SimpleRecordWireHome : ModTile(), IRecordWireHome, ITickable {
+abstract class SimpleRecordWireHome(type: TileEntityType<*>) : ModTile(type), IRecordWireHome, ITickableTileEntity {
 
     var formTreble = ArrayList<Float>()
     var formBass = ArrayList<Float>()
@@ -69,8 +70,8 @@ abstract class SimpleRecordWireHome : ModTile(), IRecordWireHome, ITickable {
         }
     }
 
-    override fun update() {
-        if (world.isRemote) {
+    override fun tick() {
+        if (world!!.isRemote) {
             while (formTreble.size > 2500) {
                 for (i in 0..24) {
                     formTreble.removeAt(0)
@@ -85,9 +86,8 @@ abstract class SimpleRecordWireHome : ModTile(), IRecordWireHome, ITickable {
     override val songRadius: Float
         get() {
             val radius = songRadiusIncrease + playRadius
-            val maxRadius = ModConfig.maxSpeakerRadius
+            val maxRadius = BetterRecordsConfig.COMMON.maxSpeakerRadius.get()
             return if (radius <= maxRadius || maxRadius == -1) radius else maxRadius.toFloat()
         }
 
-    override val tileEntity = this
 }

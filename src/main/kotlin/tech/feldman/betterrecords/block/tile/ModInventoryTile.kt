@@ -23,14 +23,12 @@
  */
 package tech.feldman.betterrecords.block.tile
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.tileentity.TileEntityType
 
-abstract class ModInventoryTile : ModTile(), IInventory {
-
-    override fun getField(id: Int) = 0
-    override fun hasCustomName() = true
+abstract class ModInventoryTile(type: TileEntityType<*>) : ModTile(type), IInventory {
 
     override fun removeStackFromSlot(index: Int) = getStackInSlot(index)
 
@@ -39,7 +37,7 @@ abstract class ModInventoryTile : ModTile(), IInventory {
             if (this.count <= count) {
                 setInventorySlotContents(index, ItemStack.EMPTY)
             } else {
-                val splitStack = this.splitStack(count)
+                val splitStack = this.split(count)
                 if (splitStack.count == 0) {
                     setInventorySlotContents(index, ItemStack.EMPTY)
                 }
@@ -48,17 +46,13 @@ abstract class ModInventoryTile : ModTile(), IInventory {
         }
     }
 
-    override fun isUsableByPlayer(player: EntityPlayer) =
+    override fun isUsableByPlayer(player: PlayerEntity) =
             player.getDistanceSq(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5) < 64
 
-    override fun getFieldCount() = 0
-    override fun openInventory(player: EntityPlayer?) { /* NO-OP */
+    override fun openInventory(player: PlayerEntity?) { /* NO-OP */
     }
 
-    override fun setField(id: Int, value: Int) { /* NO-OP */
-    }
-
-    override fun closeInventory(player: EntityPlayer?) { /* NO-OP */
+    override fun closeInventory(player: PlayerEntity?) { /* NO-OP */
     }
 
     override fun clear() { /* NO-OP */

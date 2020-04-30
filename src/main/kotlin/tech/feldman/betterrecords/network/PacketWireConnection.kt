@@ -27,29 +27,30 @@ import tech.feldman.betterrecords.api.connection.RecordConnection
 import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
 import tech.feldman.betterrecords.helper.ConnectionHelper
-import io.netty.buffer.ByteBuf
+import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
+import java.util.function.Supplier
 
 class PacketWireConnection @JvmOverloads constructor(
         var connection: RecordConnection = RecordConnection(0, 0, 0, true)
-) : IMessage {
+) {
+    object Code {
+        fun encode(msg: PacketWireConnection, buf: PacketBuffer) {
+            buf.writeString(msg.connection.toString())
+        }
 
-    override fun toBytes(buf: ByteBuf) {
-        ByteBufUtils.writeUTF8String(buf, connection.toString())
+        fun decode(buf: PacketBuffer): PacketWireConnection {
+            return PacketWireConnection(
+                    RecordConnection(buf.readString())
+            )
+        }
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        connection = RecordConnection(ByteBufUtils.readUTF8String(buf))
-    }
+    object Handler {
 
-    class Handler : IMessageHandler<PacketWireConnection, IMessage> {
-
-        override fun onMessage(message: PacketWireConnection, ctx: MessageContext): IMessage? {
-            val player = ctx.serverHandler.player
+        fun handle(message: PacketWireConnection, ctx: Supplier<NetworkEvent.Context>) {
+            val player = ctx.get().sender!!
 
             with(message) {
                 val te1 = player.world.getTileEntity(BlockPos(connection.x1, connection.y1, connection.z1))
@@ -62,8 +63,6 @@ class PacketWireConnection @JvmOverloads constructor(
                     }
                 }
             }
-
-            return null
         }
     }
 }

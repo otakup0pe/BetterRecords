@@ -26,8 +26,9 @@ package tech.feldman.betterrecords.helper.nbt
 import tech.feldman.betterrecords.api.sound.ISoundHolder
 import tech.feldman.betterrecords.api.sound.Sound
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import tech.feldman.betterrecords.extensions.set
 
 private const val SONGS_TAG = "songs"
 private const val NAME_TAG = "name"
@@ -40,14 +41,14 @@ fun isFullOfSounds(stack: ItemStack): Boolean {
         return false
     }
 
-    if (stack.hasTagCompound()) {
-        val tagCompound = stack.tagCompound!!
+    if (stack.hasTag()) {
+        val tag = stack.tag!!
 
-        if (tagCompound.hasKey(SONGS_TAG)) {
+        if (tag.contains(SONGS_TAG)) {
 
-            val tagList = tagCompound.getTagList(SONGS_TAG, 10)
+            val tagList = tag.getList(SONGS_TAG, 10)
 
-            if (tagList.tagCount() >= (stack.item as ISoundHolder).maxSounds) {
+            if (tagList.count() >= (stack.item as ISoundHolder).maxSounds) {
                 return true
             }
         }
@@ -61,28 +62,28 @@ fun addSound(stack: ItemStack, sound: Sound) {
         return
     }
 
-    val tagCompound = if (stack.hasTagCompound()) {
-        stack.tagCompound!!
+    val tag = if (stack.hasTag()) {
+        stack.tag!!
     } else {
-        NBTTagCompound()
+        CompoundNBT()
     }
 
-    val songList = if (tagCompound.hasKey(SONGS_TAG)) {
-        tagCompound.getTagList(SONGS_TAG, 10)
+    val songList = if (tag.contains(SONGS_TAG)) {
+        tag.getList(SONGS_TAG, 10)
     } else {
-        NBTTagList()
+        ListNBT()
     }
 
-    val newSongTag = NBTTagCompound()
-    newSongTag.setString(NAME_TAG, sound.name)
-    newSongTag.setString(URL_TAG, sound.url)
-    newSongTag.setInteger(SIZE_TAG, sound.size)
-    newSongTag.setString(AUTHOR_TAG, sound.author)
+    val newSongTag = CompoundNBT()
+    newSongTag.putString(NAME_TAG, sound.name)
+    newSongTag.putString(URL_TAG, sound.url)
+    newSongTag.putInt(SIZE_TAG, sound.size)
+    newSongTag.putString(AUTHOR_TAG, sound.author)
 
-    songList.appendTag(newSongTag)
-    tagCompound.setTag(SONGS_TAG, songList)
+    songList.add(newSongTag)
+    tag[SONGS_TAG] = songList
 
-    stack.tagCompound = tagCompound
+    stack.tag = tag
 }
 
 fun getSounds(stack: ItemStack): List<Sound> {
@@ -90,20 +91,20 @@ fun getSounds(stack: ItemStack): List<Sound> {
         return emptyList()
     }
 
-    if (stack.hasTagCompound()) {
-        val tagCompound = stack.tagCompound!!
+    if (stack.hasTag()) {
+        val tag = stack.tag!!
 
-        if (tagCompound.hasKey(SONGS_TAG)) {
+        if (tag.contains(SONGS_TAG)) {
 
-            val tagList = tagCompound.getTagList(SONGS_TAG, 10)
+            val tagList = tag.getList(SONGS_TAG, 10)
 
-            return (0 until tagList.tagCount())
-                    .map(tagList::getCompoundTagAt)
+            return (0 until tagList.count())
+                    .map(tagList::getCompound)
                     .map {
                         Sound(
                                 name = it.getString(NAME_TAG),
                                 url = it.getString(URL_TAG),
-                                size = it.getInteger(SIZE_TAG),
+                                size = it.getInt(SIZE_TAG),
                                 author = it.getString(AUTHOR_TAG)
                         )
                     }

@@ -24,35 +24,38 @@
 package tech.feldman.betterrecords.client.gui
 
 import tech.feldman.betterrecords.block.tile.TileRecordEtcher
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.InventoryPlayer
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.Slot
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.container.Container
+import net.minecraft.inventory.container.Slot
 import net.minecraft.item.ItemStack
+import net.minecraft.network.PacketBuffer
+import tech.feldman.betterrecords.block.ModBlocks
 
-class ContainerRecordEtcher(inventoryPlayer: InventoryPlayer, var tileEntity: TileRecordEtcher) : Container() {
+class ContainerRecordEtcher(windowId: Int, inv: PlayerInventory, extraData: PacketBuffer) : Container(ModBlocks.containerRecordEtcherType, windowId) {
 
     init {
         // Slot 0
-        addSlotToContainer(SlotValid(tileEntity, 0, 17, 50))
+        addSlot(SlotValid(inv, 0, 17, 50))
 
         // Slots 1-27
         for (i in 0..2) {
             for (j in 0..8) {
-                addSlotToContainer(Slot(inventoryPlayer, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
+                addSlot(Slot(inv, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
             }
         }
 
         // Slots 28-36
         for (i in 0..8) {
-            addSlotToContainer(Slot(inventoryPlayer, i, 8 + i * 18, 142))
+            addSlot(Slot(inv, i, 8 + i * 18, 142))
         }
     }
 
-    override fun canInteractWith(player: EntityPlayer) =
-            tileEntity.isUsableByPlayer(player)
+    // TODO
+    override fun canInteractWith(player: PlayerEntity) = true
+            // tileEntity.isUsableByPlayer(player)
 
-    override fun transferStackInSlot(player: EntityPlayer?, slotIndex: Int): ItemStack {
+    override fun transferStackInSlot(player: PlayerEntity?, slotIndex: Int): ItemStack {
         val slot = inventory[slotIndex]
 
         if (slotIndex > 0) {

@@ -1,0 +1,21 @@
+modLoader="kotlinfml"
+loaderVersion="[1.4,)"
+
+issueTrackerURL="https://github.com/NicholasFeldman/BetterRecords/issues"
+displayURL="https://github.com/NicholasFeldman/BetterRecords"
+authors="AngrySoundTech"
+credits="Stumbinbear, Borlea"
+
+[[mods]]
+modId="betterrecords"
+version="${version}"
+displayName="BetterRecords"
+description="Adds records that can play songs via URLs."
+
+[[dependencies.betterrecords]]
+modId="forge"
+mandatory=true
+versionRange="[28.1.92,)"
+ordering="NONE"
+side="BOTH"
+

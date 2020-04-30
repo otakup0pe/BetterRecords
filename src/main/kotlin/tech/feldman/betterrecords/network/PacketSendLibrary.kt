@@ -23,42 +23,39 @@
  */
 package tech.feldman.betterrecords.network
 
-import tech.feldman.betterrecords.BetterRecords
-import tech.feldman.betterrecords.ModConfig
 import tech.feldman.betterrecords.library.Libraries
 import tech.feldman.betterrecords.library.Library
-import io.netty.buffer.ByteBuf
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraft.network.PacketBuffer
+import net.minecraftforge.fml.network.NetworkEvent
+import tech.feldman.betterrecords.BetterRecordsConfig
+import java.util.function.Supplier
 
 class PacketSendLibrary @JvmOverloads constructor(
         var library: Library? = null
-) : IMessage {
+) {
 
-    override fun toBytes(buf: ByteBuf) {
-        ByteBufUtils.writeUTF8String(buf, library.toString())
+    object Code {
+        fun encode(msg: PacketSendLibrary, buf: PacketBuffer) {
+            buf.writeString(msg.library.toString())
+        }
+
+        fun decode(buf: PacketBuffer): PacketSendLibrary {
+            return PacketSendLibrary(Library.fromString(buf.readString()))
+        }
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        library = Library.fromString(ByteBufUtils.readUTF8String(buf))
-    }
+    object Handler {
 
-    class Handler : IMessageHandler<PacketSendLibrary, IMessage> {
-
-        override fun onMessage(message: PacketSendLibrary, ctx: MessageContext): IMessage? {
+        fun handle(message: PacketSendLibrary, ctx: Supplier<NetworkEvent.Context>) {
             with(message) {
                 library?.let {
-                    if (ModConfig.useRemoteLibraries) {
+                    if (BetterRecordsConfig.COMMON.useRemoteLibraries.get()) {
                         tech.feldman.betterrecords.BetterRecords.logger.info("Received library from server: ${it.name}")
 
                         Libraries.libraries.add(it)
                     }
                 }
             }
-
-            return null
         }
     }
 }

@@ -25,7 +25,7 @@ package tech.feldman.betterrecords.helper.nbt
 
 import tech.feldman.betterrecords.api.sound.IColorableSoundHolder
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 
 private const val COLOR_TAG = "color"
 
@@ -34,10 +34,10 @@ fun getColor(stack: ItemStack): Int {
         return -1
     }
 
-    if (stack.hasTagCompound()) {
-        val tagCompound = stack.tagCompound!!
+    if (stack.hasTag()) {
+        val tag = stack.tag!!
 
-        return tagCompound.getInteger(COLOR_TAG)
+        return tag.getInt(COLOR_TAG)
     }
 
     return -1
@@ -48,13 +48,13 @@ fun setColor(stack: ItemStack, color: Int) {
         return
     }
 
-    val tagCompound = if (stack.hasTagCompound()) {
-        stack.tagCompound!!
+    val tag = if (stack.hasTag()) {
+        stack.tag!!
     } else {
-        NBTTagCompound()
+        CompoundNBT()
     }
 
-    tagCompound.setInteger(COLOR_TAG, color)
+    tag.putInt(COLOR_TAG, color)
 
-    stack.tagCompound = tagCompound
+    stack.tag = tag
 }

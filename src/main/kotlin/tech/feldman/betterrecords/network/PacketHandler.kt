@@ -23,35 +23,44 @@
  */
 package tech.feldman.betterrecords.network
 
-import tech.feldman.betterrecords.NETWORK_CHANNEL
-import net.minecraft.entity.player.EntityPlayerMP
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper
-import net.minecraftforge.fml.relauncher.Side.CLIENT
-import net.minecraftforge.fml.relauncher.Side.SERVER
+import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.util.ResourceLocation
+
+import net.minecraftforge.fml.network.NetworkDirection
+import net.minecraftforge.fml.network.NetworkRegistry
+import net.minecraftforge.fml.network.PacketDistributor
+
+import tech.feldman.betterrecords.MOD_ID
 
 object PacketHandler {
 
-    private val HANDLER = SimpleNetworkWrapper(NETWORK_CHANNEL)
+    private val PROTOCOL = "5"
+    private val HANDLER = NetworkRegistry.newSimpleChannel(
+            ResourceLocation(MOD_ID, "chan"),
+            { PROTOCOL },
+            PROTOCOL::equals,
+            PROTOCOL::equals
+    )
 
     fun init() {
-        HANDLER.registerMessage(PacketRecordPlay.Handler::class.java, PacketRecordPlay::class.java, 0, CLIENT)
-        HANDLER.registerMessage(PacketRadioPlay.Handler::class.java, PacketRadioPlay::class.java, 1, CLIENT)
-        HANDLER.registerMessage(PacketSoundStop.Handler::class.java, PacketSoundStop::class.java, 2, CLIENT)
-        HANDLER.registerMessage(PacketWireConnection.Handler::class.java, PacketWireConnection::class.java, 3, SERVER)
-        HANDLER.registerMessage(PacketURLWrite.Handler::class.java, PacketURLWrite::class.java, 4, SERVER)
-        HANDLER.registerMessage(PacketSendLibrary.Handler::class.java, PacketSendLibrary::class.java, 5, CLIENT)
+        var id = 0
+        HANDLER.registerMessage(id++, PacketRecordPlay::class.java, PacketRecordPlay.Code::encode, PacketRecordPlay.Code::decode, PacketRecordPlay.Handler::handle)
+        HANDLER.registerMessage(id++, PacketRadioPlay::class.java, PacketRadioPlay.Code::encode, PacketRadioPlay.Code::decode, PacketRadioPlay.Handler::handle)
+        HANDLER.registerMessage(id++, PacketSoundStop::class.java, PacketSoundStop.Code::encode, PacketSoundStop.Code::decode, PacketSoundStop.Handler::handle)
+        HANDLER.registerMessage(id++, PacketWireConnection::class.java, PacketWireConnection.Code::encode, PacketWireConnection.Code::decode, PacketWireConnection.Handler::handle)
+        HANDLER.registerMessage(id++, PacketURLWrite::class.java, PacketURLWrite.Code::encode, PacketURLWrite.Code::decode, PacketURLWrite.Handler::handle)
+        HANDLER.registerMessage(id++, PacketSendLibrary::class.java, PacketSendLibrary.Code::encode, PacketSendLibrary.Code::decode, PacketSendLibrary.Handler::handle)
     }
 
-    fun sendToAll(msg: IMessage) {
-        HANDLER.sendToAll(msg)
+    fun sendToAll(msg: Any) {
+        HANDLER.send(PacketDistributor.ALL.noArg(), msg)
     }
 
-    fun sendToServer(msg: IMessage) {
+    fun sendToServer(msg: Any) {
         HANDLER.sendToServer(msg)
     }
 
-    fun sendToPlayer(msg: IMessage, player: EntityPlayerMP) {
-        HANDLER.sendTo(msg, player)
+    fun sendToPlayer(player: ServerPlayerEntity, msg: Any) {
+        HANDLER.sendTo(msg, player.connection.networkManager, NetworkDirection.PLAY_TO_CLIENT)
     }
 }

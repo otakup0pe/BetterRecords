@@ -31,8 +31,8 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 
 fun getVolumeForPlayerFromBlock(pos: BlockPos): Float {
-    val player = Minecraft.getMinecraft().player
-    val world = Minecraft.getMinecraft().world
+    val player = Minecraft.getInstance().player
+    val world = Minecraft.getInstance().world
 
     // The record player or Radio.
     // If it isn't one of those, we return a volume of zero.
@@ -64,8 +64,8 @@ fun getVolumeForPlayerFromBlock(pos: BlockPos): Float {
     } else {
         // Take into account the user's settings
         val volume = distance * (50F / te.songRadius /
-                (Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER) *
-                        Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.RECORDS)))
+                (Minecraft.getInstance().gameSettings.getSoundLevel(SoundCategory.MASTER) *
+                        Minecraft.getInstance().gameSettings.getSoundLevel(SoundCategory.RECORDS)))
 
         if (volume > 80F) {
             -80F

@@ -25,7 +25,7 @@ package tech.feldman.betterrecords.helper.nbt
 
 import tech.feldman.betterrecords.api.sound.IRepeatableSoundHolder
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 
 private const val REPEATABLE_TAG = "repeatable"
 
@@ -34,10 +34,10 @@ fun isRepeatable(stack: ItemStack): Boolean {
         return false
     }
 
-    if (stack.hasTagCompound()) {
-        val tagCompound = stack.tagCompound!!
+    if (stack.hasTag()) {
+        val tag = stack.tag!!
 
-        return tagCompound.getBoolean(REPEATABLE_TAG)
+        return tag.getBoolean(REPEATABLE_TAG)
     }
 
     return false
@@ -48,13 +48,13 @@ fun setRepeatable(stack: ItemStack, repeatable: Boolean) {
         return
     }
 
-    val tagCompound = if (stack.hasTagCompound()) {
-        stack.tagCompound!!
+    val tag = if (stack.hasTag()) {
+        stack.tag!!
     } else {
-        NBTTagCompound()
+        CompoundNBT()
     }
 
-    tagCompound.setBoolean(REPEATABLE_TAG, repeatable)
+    tag.putBoolean(REPEATABLE_TAG, repeatable)
 
-    stack.tagCompound = tagCompound
+    stack.tag = tag
 }

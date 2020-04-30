@@ -11,46 +11,78 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.3'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath(group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true)
     }
 }
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "1.3.11"
     id "com.github.hierynomus.license" version "0.15.0"
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
 }
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'net.minecraftforge.gradle.forge'
+
+apply plugin: 'net.minecraftforge.gradle'
 
 //////////////////
 // Dependencies //
 //////////////////
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven {
-        url 'http://maven.shadowfacts.net/'
+        url 'https://files.minecraftforge.net/maven'
+    }
+    maven {
+        url 'https://minecraft.curseforge.com/api/maven/'
     }
 }
 
-dependencies {
-    shadow group: 'net.shadowfacts', name: 'Forgelin', 'version': forgelin_version
+configurations {
+    embed
+    compile.extendsFrom embed
+}
 
-    compile group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
-    compile group: 'com.googlecode.soundlibs', name: 'vorbisspi', version: '1.0.3.3'
+dependencies {
+    minecraft group: 'net.minecraftforge', name: 'forge', 'version': "$minecraft_version-$forge_version"
+
+    compile group: 'kottle', name: 'Kottle', 'version': kottle_version
+
+    embed group: 'com.googlecode.soundlibs', name: 'mp3spi', version: '1.9.5-1'
+    embed group: 'com.googlecode.soundlibs', name: 'vorbisspi', version: '1.0.3.3'
 }
 
 minecraft {
-    version = "$minecraft_version-$forge_version"
-    mappings = "$forge_mappings"
-    runDir = "run"
+    mappings channel: 'snapshot', version: forge_mappings
 
-    replaceIn "Constants.kt"
-    replace "@VERSION@", project.version
+    runs {
+        client {
+            properties 'forge.logging.console.level': 'debug'
+            properties 'fml.earlyprogresswindow': 'false'
+            mods {
+                betterrecords {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run')
+            mods {
+                betterrecords {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+tasks {
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
 
 ///////////////
@@ -61,10 +93,10 @@ version = "$minecraft_version-$mod_version"
 
 processResources {
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        include 'META-INF/mods.toml'
+        expand 'version':project.version
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -75,16 +107,14 @@ processResources {
 shadowJar {
     classifier '' // Replace the default jar
 
-    dependencies {
-        exclude dependency('junit:junit')
-    }
-
-    exclude 'dummyThing'
+    configurations = [project.configurations.embed]
 
     relocate 'com.jcraft', 'tech.feldman.betterrecords.repack.jcraft'
     relocate 'javazoom', 'tech.feldman.betterrecords.repack.javazoom'
     relocate 'org.tritonus', 'tech.feldman.betterrecords.repack.tritonus'
 }
+
+tasks.build.dependsOn shadowJar
 
 reobf {
     shadowJar {}
@@ -111,43 +141,10 @@ artifacts {
     archives javadocJar
 }
 
-
 ///////////////
 // Licencing //
 ///////////////
 
 license {
     include "**/*.kt"
-}
-
-////////////////
-// Publishing //
-////////////////
-
-artifactoryPublish.dependsOn reobfShadowJar
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            for (theArtifact in configurations.archives.allArtifacts) {
-                artifact theArtifact
-            }
-        }
-    }
-}
-
-artifactory {
-    contextUrl = "https://artifactory.feldman.tech/artifactory/"
-    publish {
-        repository {
-            repoKey = System.getenv('CIRCLE_BRANCH') ==~ /^dev$/ ? 'minecraft-snapshots' :
-                    System.getenv('CIRCLE_BRANCH') ==~ /^master$/ ? 'minecraft-releases' : null
-            username = System.getenv('ARTIFACTORY_USER')
-            password = System.getenv('ARTIFACTORY_PASSWORD')
-        }
-        defaults {
-            publications('maven')
-            publishArtifacts = true
-        }
-    }
 }

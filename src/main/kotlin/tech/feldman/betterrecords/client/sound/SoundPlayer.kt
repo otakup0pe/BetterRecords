@@ -24,7 +24,7 @@
 package tech.feldman.betterrecords.client.sound
 
 import tech.feldman.betterrecords.BetterRecords
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.api.record.IRecordAmplitude
 import tech.feldman.betterrecords.api.sound.Sound
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
@@ -42,7 +42,7 @@ import kotlin.math.absoluteValue
 
 object SoundPlayer {
 
-    private val downloadFolder = File(Minecraft.getMinecraft().mcDataDir, "betterrecords/cache")
+    private val downloadFolder = File(Minecraft.getInstance().gameDir, "betterrecords/cache")
 
     private val playingSounds = HashMap<Pair<BlockPos, Int>, Sound>()
 
@@ -153,21 +153,23 @@ object SoundPlayer {
     }
 
     private fun updateLights(buffer: ByteArray, pos: BlockPos, dimension: Int) {
-        if (Minecraft.getMinecraft().world.provider.dimension != dimension) {
+        // TODO
+        // if (Minecraft.getInstance().world.provider.dimension != dimension) {
+        if (true) {
             return
         }
 
         var unscaledTreble = -1F
         var unscaledBass = -1F
 
-        val te = Minecraft.getMinecraft().world.getTileEntity(pos)
+        val te = Minecraft.getInstance().world.getTileEntity(pos)
 
         (te as? IRecordWireHome)?.let {
             te.addTreble(getUnscaledWaveform(buffer, true, false))
             te.addBass(getUnscaledWaveform(buffer, false, false))
 
             for (connection in te.connections) {
-                val connectedTe = Minecraft.getMinecraft().world.getTileEntity(BlockPos(connection.x2, connection.y2, connection.z2))
+                val connectedTe = Minecraft.getInstance().world.getTileEntity(BlockPos(connection.x2, connection.y2, connection.z2))
 
                 (connectedTe as? IRecordAmplitude)?.let {
                     if (unscaledTreble == -1F || unscaledBass == 11F) {
@@ -200,7 +202,7 @@ object SoundPlayer {
             }
 
             if (avg > 20F) {
-                return if (ModConfig.client.flashMode < 3) {
+                return if (BetterRecordsConfig.CLIENT.flashMode.get() < 3) {
                     1F
                 } else {
                     2F

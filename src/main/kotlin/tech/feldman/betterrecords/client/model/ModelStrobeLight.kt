@@ -24,21 +24,24 @@
 package tech.feldman.betterrecords.client.model
 
 import tech.feldman.betterrecords.extensions.glMatrix
-import net.minecraft.client.model.ModelBase
-import net.minecraft.client.model.ModelRenderer
+import net.minecraft.client.renderer.model.Model
+import net.minecraft.client.renderer.entity.model.RendererModel
 import net.minecraft.entity.Entity
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.GL11
 
-class ModelStrobeLight : ModelBase() {
-    internal var Base: ModelRenderer
-    internal var Light: ModelRenderer
-    internal var GlassTop: ModelRenderer
+@OnlyIn(Dist.CLIENT)
+class ModelStrobeLight : Model() {
+    internal var Base: RendererModel
+    internal var Light: RendererModel
+    internal var GlassTop: RendererModel
 
     init {
         textureWidth = 64
         textureHeight = 32
 
-        Base = ModelRenderer(this, 0, 15).apply {
+        Base = RendererModel(this, 0, 15).apply {
             addBox(-4f, -2f, -4f, 8, 3, 8)
             setRotationPoint(0f, 23f, 0f)
             setTextureSize(64, 32)
@@ -46,7 +49,7 @@ class ModelStrobeLight : ModelBase() {
         }
         setRotation(Base, 0f, 0f, 0f)
 
-        Light = ModelRenderer(this, 28, 0).apply {
+        Light = RendererModel(this, 28, 0).apply {
             addBox(-2f, -6f, -2f, 3, 4, 3)
             setRotationPoint(0.5f, 23f, 0.5f)
             setTextureSize(64, 32)
@@ -54,7 +57,7 @@ class ModelStrobeLight : ModelBase() {
         }
         setRotation(Light, 0f, 0f, 0f)
 
-        GlassTop = ModelRenderer(this, 0, 0).apply {
+        GlassTop = RendererModel(this, 0, 0).apply {
             addBox(-4f, -10f, -4f, 7, 8, 7)
             setRotationPoint(0.5f, 23f, 0.5f)
             setTextureSize(64, 32)
@@ -63,10 +66,7 @@ class ModelStrobeLight : ModelBase() {
         setRotation(GlassTop, 0f, 0f, 0f)
     }
 
-    override fun render(entity: Entity?, f: Float, f1: Float, f2: Float, f3: Float, f4: Float, f5: Float) {
-        super.render(entity, f, f1, f2, f3, f4, f5)
-        setRotationAngles(f, f1, f2, f3, f4, f5, entity)
-
+    fun render(entity: Entity?, f: Float, f1: Float, f2: Float, f3: Float, f4: Float, f5: Float) {
         Base.render(f5)
         Light.render(f5)
 
@@ -77,7 +77,7 @@ class ModelStrobeLight : ModelBase() {
         }
     }
 
-    private fun setRotation(model: ModelRenderer, x: Float, y: Float, z: Float) {
+    private fun setRotation(model: RendererModel, x: Float, y: Float, z: Float) {
         model.rotateAngleX = x
         model.rotateAngleY = y
         model.rotateAngleZ = z

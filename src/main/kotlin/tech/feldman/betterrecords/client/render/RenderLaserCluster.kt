@@ -23,27 +23,27 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.MOD_ID
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.block.tile.TileLaserCluster
 import tech.feldman.betterrecords.client.model.ModelLaserCluster
-import net.minecraft.client.renderer.GlStateManager.*
+import com.mojang.blaze3d.platform.GlStateManager.*
 import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-class RenderLaserCluster : TileEntitySpecialRenderer<TileLaserCluster>() {
+class RenderLaserCluster : TileEntityRenderer<TileLaserCluster>() {
 
     val MODEL = ModelLaserCluster()
-    val TEXTURE = ResourceLocation(ID, "textures/models/lasercluster.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/lasercluster.png")
 
-    override fun render(te: TileLaserCluster?, x: Double, y: Double, z: Double, scale: Float, unknown: Int, alpha: Float) {
+    override fun render(te: TileLaserCluster?, x: Double, y: Double, z: Double, scale: Float, unknown: Int) {
 
         pushMatrix()
 
-        translate(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
-        rotate(180f, 0.0f, 0.0f, 1.0f)
+        translatef(x.toFloat() + 0.5f, y.toFloat() + 1.5f, z.toFloat() + 0.5f)
+        rotatef(180f, 0.0f, 0.0f, 1.0f)
 
         bindTexture(TEXTURE)
 
@@ -54,41 +54,41 @@ class RenderLaserCluster : TileEntitySpecialRenderer<TileLaserCluster>() {
         te?.let {
 
             if (te.r != 0.0f && te.g != 0.0f && te.b != 0.0f) {
-                disableTexture2D()
+                disableTexture()
                 enableBlend()
-                color(te.r, te.g, te.b, if (ModConfig.client.flashMode == 1) .2f else .4f)
+                color4f(te.r, te.g, te.b, if (BetterRecordsConfig.CLIENT.flashMode.get() == 1) .2f else .4f)
             }
 
             //MODEL.renderEmitter(null, 0f, 0f, 0f, 0.0f, 0.0f, 0.0625f)
             if (te.r != 0.0f && te.g != 0.0f && te.b != 0.0f) {
                 disableBlend()
-                enableTexture2D()
+                enableTexture()
             }
 
-            color(1f, 1f, 1f, 1f)
+            color4f(1f, 1f, 1f, 1f)
             enableLighting()
 
-            translate(0.0f, 1.0f, 0.0f)
+            translatef(0.0f, 1.0f, 0.0f)
 
-            if (te.bass != 0F && ModConfig.client.flashMode > 0) {
+            if (te.bass != 0F && BetterRecordsConfig.CLIENT.flashMode.get() > 0) {
                 pushMatrix()
 
                 disableLighting()
-                disableTexture2D()
+                disableTexture()
                 enableBlend()
                 RenderHelper.disableStandardItemLighting()
 
-                glLineWidth(te.bass / 2)
+                lineWidth(te.bass / 2)
 
                 var pitch = 0f
                 while (pitch < 9f) {
-                    rotate(200f / 3, 0f, 1f, 0f)
+                    rotatef(200f / 3, 0f, 1f, 0f)
                     var yaw = 0f
                     while (yaw < 18f) {
-                        rotate(200f / 9, 0f, 0f, 1f)
-                        glBegin(GL11.GL_LINE_STRIP)
+                        rotatef(200f / 9, 0f, 0f, 1f)
+                        begin(GL11.GL_LINE_STRIP)
                         run {
-                            color(te.r, te.g, te.b, if (ModConfig.client.flashMode == 1) .2f else .4f)
+                            color4f(te.r, te.g, te.b, if (BetterRecordsConfig.CLIENT.flashMode.get() == 1) .2f else .4f)
                             GL11.glVertex2f(0f, 0f)
 
                             val xx = Math.cos(pitch * (Math.PI / 180)).toFloat() * 20f
@@ -96,22 +96,22 @@ class RenderLaserCluster : TileEntitySpecialRenderer<TileLaserCluster>() {
 
                             GL11.glVertex2f(xx, yy)
                         }
-                        glEnd()
+                        end()
                         yaw += 1f
                     }
                     pitch += 1f
                 }
 
-                glLineWidth(1F)
+                lineWidth(1F)
 
                 RenderHelper.enableStandardItemLighting()
                 disableBlend()
-                enableTexture2D()
+                enableTexture()
                 enableLighting()
 
                 popMatrix()
 
-                color(1f, 1f, 1f, 1f)
+                color4f(1f, 1f, 1f, 1f)
             }
         }
 

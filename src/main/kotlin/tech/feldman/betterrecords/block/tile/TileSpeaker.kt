@@ -28,23 +28,26 @@ import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.block.BlockSpeaker
 import tech.feldman.betterrecords.extensions.set
 import tech.feldman.betterrecords.helper.ConnectionHelper
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.TileEntityType
+import tech.feldman.betterrecords.block.ModBlocks
 
-class TileSpeaker : ModTile(), IRecordWire {
+class TileSpeaker() : ModTile(ModBlocks.blockSpeakerType), IRecordWire {
 
     var rotation = 0f
 
     var size = BlockSpeaker.SpeakerSize.SMALL
-        get() {
-            // Horrible hacky solution to fix an issue that only seems to occur sometimes.
-            // This will get properly fixed in the next major refactoring pass of blocks / tiles.
-            // Which is planned very shortly. In order to properly fix the issue, the way I do many things should be refactored
-            return try {
-                world?.getBlockState(pos)?.getValue(BlockSpeaker.PROPERTYSIZE) ?: BlockSpeaker.SpeakerSize.SMALL
-            } catch (e: Exception) {
-                BlockSpeaker.SpeakerSize.SMALL
-            }
-        }
+            // TODO
+//        get() {
+//            // Horrible hacky solution to fix an issue that only seems to occur sometimes.
+//            // This will get properly fixed in the next major refactoring pass of blocks / tiles.
+//            // Which is planned very shortly. In order to properly fix the issue, the way I do many things should be refactored
+//            return try {
+//                world?.getBlockState(pos)?.getValue(BlockSpeaker.PROPERTYSIZE) ?: BlockSpeaker.SpeakerSize.SMALL
+//            } catch (e: Exception) {
+//                BlockSpeaker.SpeakerSize.SMALL
+//            }
+//        }
 
     override var connections = mutableListOf<RecordConnection>()
 
@@ -61,15 +64,15 @@ class TileSpeaker : ModTile(), IRecordWire {
             BlockSpeaker.SpeakerSize.LARGE -> 70F
         }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
         rotation = getFloat("rotation")
         connections = ConnectionHelper.unserializeConnections(getString("connections")).toMutableList()
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
         set("rotation", rotation)
         set("connections", ConnectionHelper.serializeConnections(connections))
