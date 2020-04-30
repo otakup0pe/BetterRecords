@@ -23,29 +23,30 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
+import tech.feldman.betterrecords.MOD_ID
 import tech.feldman.betterrecords.block.tile.TileFrequencyTuner
 import tech.feldman.betterrecords.client.model.ModelFrequencyTuner
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import com.mojang.blaze3d.platform.GlStateManager.*
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 
-class RenderFrequencyTuner : TileEntitySpecialRenderer<TileFrequencyTuner>() {
+class RenderFrequencyTuner : TileEntityRenderer<TileFrequencyTuner>() {
 
     val MODEL = ModelFrequencyTuner()
-    val TEXTURE = ResourceLocation(ID, "textures/models/frequencytuner.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/frequencytuner.png")
 
-    override fun render(te: TileFrequencyTuner?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int, alpha: Float) {
+    override fun render(te: TileFrequencyTuner?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int) {
 
         pushMatrix()
 
-        translate(x + 0.5F, y + 1.5F, z + 0.5F)
-        rotate(180F, 0F, 0F, 1F)
+        translated(x + 0.5, y + 1.5, z + 0.5)
+        rotatef(180F, 0F, 0F, 1F)
 
-        te?.let {
-            rotate(te.blockMetadata * 90 + 180.toFloat(), 0F, 1F, 0F)
-        }
+        // TODO rotate
+        // te?.let {
+        //     rotatef(te.blockMetadata * 90 + 180.toFloat(), 0F, 1F, 0F)
+        // }
 
         bindTexture(TEXTURE)
 

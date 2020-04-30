@@ -25,90 +25,75 @@ package tech.feldman.betterrecords.network
 
 import tech.feldman.betterrecords.api.event.RecordInsertEvent
 import tech.feldman.betterrecords.api.sound.Sound
-import tech.feldman.betterrecords.helper.nbt.getSounds
-import tech.feldman.betterrecords.item.ModItems
-import io.netty.buffer.ByteBuf
-import net.minecraft.item.ItemStack
+import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.network.ByteBufUtils
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
+import java.util.function.Supplier
 
 class PacketRecordPlay @JvmOverloads constructor(
         var pos: BlockPos = BlockPos(0, 0, 0),
         var dimension: Int = -1,
         var playRadius: Float = -1F,
+        var sounds: MutableList<Sound>,
         var repeat: Boolean = false,
-        var shuffle: Boolean = false,
-        var recordStack: ItemStack = ItemStack(ModItems.itemRecord)
-) : IMessage {
+        var shuffle: Boolean = false
+) {
 
-    val sounds = mutableListOf<Sound>()
+    object Code {
+        fun encode(msg: PacketRecordPlay, buf: PacketBuffer) {
+            buf.writeBlockPos(msg.pos)
+            buf.writeInt(msg.dimension)
+            buf.writeFloat(msg.playRadius)
 
-    init {
-        sounds.addAll(getSounds(recordStack))
-    }
+            // Write the amount of sounds we're going to send,
+            // to rebuild on the other side.
+            buf.writeInt(msg.sounds.size)
+            msg.sounds.forEach { sound ->
+                buf.writeString(sound.url)
+                buf.writeString(sound.name)
+                buf.writeInt(sound.size)
+                buf.writeString(sound.author)
+            }
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(pos.x)
-        buf.writeInt(pos.y)
-        buf.writeInt(pos.z)
-
-        buf.writeInt(dimension)
-
-        buf.writeFloat(playRadius)
-
-        // Write the amount of sounds we're going to send,
-        // to rebuild on the other side.
-        buf.writeInt(sounds.size)
-
-        sounds.forEach {
-            ByteBufUtils.writeUTF8String(buf, it.url)
-            ByteBufUtils.writeUTF8String(buf, it.name)
-            buf.writeInt(it.size)
-            ByteBufUtils.writeUTF8String(buf, it.author)
+            buf.writeBoolean(msg.repeat)
+            buf.writeBoolean(msg.shuffle)
         }
 
-        buf.writeBoolean(repeat)
-        buf.writeBoolean(shuffle)
-    }
-
-    override fun fromBytes(buf: ByteBuf) {
-        pos = BlockPos(buf.readInt(), buf.readInt(), buf.readInt())
-
-        dimension = buf.readInt()
-
-        playRadius = buf.readFloat()
-
-        val amount = buf.readInt()
-        for (i in 1..amount) {
-            sounds.add(Sound(
-                    ByteBufUtils.readUTF8String(buf),
-                    ByteBufUtils.readUTF8String(buf),
+        fun decode(buf: PacketBuffer): PacketRecordPlay {
+            return PacketRecordPlay(
+                    buf.readBlockPos(),
                     buf.readInt(),
-                    ByteBufUtils.readUTF8String(buf)
-            ))
-        }
+                    buf.readFloat(),
+                    {
+                        val list = mutableListOf<Sound>()
+                        for (i in 1..buf.readInt()) {
+                            list.add(Sound(
+                                    buf.readString(),
+                                    buf.readString(),
+                                    buf.readInt(),
+                                    buf.readString()
+                            ))
+                        }
+                        list
+                    }(),
+                    buf.readBoolean(),
+                    buf.readBoolean()
 
-        repeat = buf.readBoolean()
-        shuffle = buf.readBoolean()
+            )
+        }
     }
 
-    class Handler : IMessageHandler<PacketRecordPlay, IMessage> {
+    object Handler {
 
-        override fun onMessage(message: PacketRecordPlay, ctx: MessageContext): IMessage? {
+        fun handle(message: PacketRecordPlay, ctx: Supplier<NetworkEvent.Context>) {
             with(message) {
                 if (shuffle) {
-                    sounds.shuffle()
+                    message.sounds.shuffle()
                 }
 
                 MinecraftForge.EVENT_BUS.post(RecordInsertEvent(pos, dimension, playRadius, sounds, repeat))
             }
-
-            return null
         }
-
     }
 }

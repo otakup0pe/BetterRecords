@@ -27,10 +27,12 @@ import tech.feldman.betterrecords.api.connection.RecordConnection
 import tech.feldman.betterrecords.api.record.IRecordAmplitude
 import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.helper.ConnectionHelper
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.ITickable
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.ITickableTileEntity
+import tech.feldman.betterrecords.block.ModBlocks
+import tech.feldman.betterrecords.extensions.set
 
-class TileStrobeLight : ModTile(), IRecordWire, IRecordAmplitude, ITickable {
+class TileStrobeLight : ModTile(ModBlocks.blockStrobeLightType), IRecordWire, IRecordAmplitude, ITickableTileEntity {
 
     override var connections = mutableListOf<RecordConnection>()
 
@@ -44,20 +46,20 @@ class TileStrobeLight : ModTile(), IRecordWire, IRecordAmplitude, ITickable {
 
     override fun getName() = "Strobe Light"
 
-    override fun update() {
+    override fun tick() {
         if (bass > 0) bass--
         if (bass < 0) bass = 0F
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
         connections = ConnectionHelper.unserializeConnections(getString("connections")).toMutableList()
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
-        setString("connections", ConnectionHelper.serializeConnections(connections))
+        putString("connections", ConnectionHelper.serializeConnections(connections))
     }
 }

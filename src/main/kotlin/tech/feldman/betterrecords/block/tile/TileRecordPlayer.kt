@@ -25,11 +25,13 @@ package tech.feldman.betterrecords.block.tile
 
 import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.helper.ConnectionHelper
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.item.ItemEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.TileEntityType
+import tech.feldman.betterrecords.block.ModBlocks
 
-class TileRecordPlayer : SimpleRecordWireHome(), IRecordWire {
+class TileRecordPlayer() : SimpleRecordWireHome(ModBlocks.blockRecordPlayerType), IRecordWire {
 
     override fun getName() = "Record Player"
 
@@ -38,14 +40,13 @@ class TileRecordPlayer : SimpleRecordWireHome(), IRecordWire {
     override var record = ItemStack.EMPTY
         set(value) {
             field = value.copy()
-            recordEntity = EntityItem(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), field)
-            recordEntity?.hoverStart = 0F
+            recordEntity = ItemEntity(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), field)
             recordEntity?.rotationPitch = 0F
             recordEntity?.rotationYaw = 0F
             recordRotation = 0F
         }
 
-    var recordEntity: EntityItem? = null
+    var recordEntity: ItemEntity? = null
 
     var opening = false
     var openAmount = 0f
@@ -53,7 +54,7 @@ class TileRecordPlayer : SimpleRecordWireHome(), IRecordWire {
     var needleLocation = 0f
     var recordRotation = 0f
 
-    override fun update() {
+    override fun tick() {
         if (opening) {
             if (openAmount > -0.8f) {
                 openAmount -= 0.08f
@@ -81,13 +82,14 @@ class TileRecordPlayer : SimpleRecordWireHome(), IRecordWire {
             needleLocation = 0f
         }
 
-        super.update()
+        super.tick()
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
-        record = ItemStack(getCompoundTag("record"))
+        // TODO: HMMMM
+        // record = ItemStack(get("record"))
         opening = getBoolean("opening")
 
         connections = ConnectionHelper.unserializeConnections(getString("connections")).toMutableList()
@@ -96,21 +98,21 @@ class TileRecordPlayer : SimpleRecordWireHome(), IRecordWire {
         playRadius = getFloat("playRadius")
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
-        setTag("record", getStackTagCompound(record))
-        setBoolean("opening", opening)
+        put("record", getStackTagCompound(record))
+        putBoolean("opening", opening)
 
-        setString("connections", ConnectionHelper.serializeConnections(connections))
-        setString("wireSystemInfo", ConnectionHelper.serializeWireSystemInfo(wireSystemInfo))
+        putString("connections", ConnectionHelper.serializeConnections(connections))
+        putString("wireSystemInfo", ConnectionHelper.serializeWireSystemInfo(wireSystemInfo))
 
-        setFloat("playRadius", playRadius)
+        putFloat("playRadius", playRadius)
     }
 
-    fun getStackTagCompound(stack: ItemStack?): NBTTagCompound {
-        val tag = NBTTagCompound()
-        stack?.writeToNBT(tag)
+    fun getStackTagCompound(stack: ItemStack?): CompoundNBT {
+        val tag = CompoundNBT()
+        stack?.write(tag)
         return tag
     }
 }

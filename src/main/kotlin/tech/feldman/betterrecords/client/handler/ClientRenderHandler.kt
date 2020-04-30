@@ -23,21 +23,20 @@
  */
 package tech.feldman.betterrecords.client.handler
 
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.MOD_ID
 import tech.feldman.betterrecords.extensions.glMatrix
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.resources.I18n
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.event.TickEvent
+import net.minecraftforge.api.distmarker.Dist
 import org.lwjgl.opengl.GL11
+import tech.feldman.betterrecords.BetterRecordsConfig
 import java.awt.Color
 import kotlin.concurrent.thread
 
-@Mod.EventBusSubscriber(modid = ID, value = [Side.CLIENT])
+@Mod.EventBusSubscriber(Dist.CLIENT, modid = MOD_ID)
 object ClientRenderHandler {
 
     var strobeLinger = 0f
@@ -64,12 +63,12 @@ object ClientRenderHandler {
     @SubscribeEvent
     fun onClientRender(event: TickEvent.RenderTickEvent) {
         if (event.phase == TickEvent.Phase.END) {
-            val mc = Minecraft.getMinecraft()
-            val res = ScaledResolution(mc)
-            val width = res.scaledWidth
-            val height = res.scaledHeight
+            val mc = Minecraft.getInstance()
+            val width = mc.mainWindow.width
+            val height = mc.mainWindow.height
             val fontRenderer = mc.fontRenderer
-            mc.entityRenderer.setupOverlayRendering()
+            // TODO Locate this
+            // mc.entityRenderer.setupOverlayRendering()
             if (strobeLinger > 0f) {
                 glMatrix {
                     GL11.glDisable(GL11.GL_TEXTURE_2D)
@@ -86,7 +85,7 @@ object ClientRenderHandler {
                     GL11.glDisable(GL11.GL_BLEND)
                     GL11.glEnable(GL11.GL_TEXTURE_2D)
                 }
-                strobeLinger -= if (ModConfig.client.flashMode < 3) 0.01f else 0.2f
+                strobeLinger -= if (BetterRecordsConfig.CLIENT.flashMode.get() < 3) 0.01f else 0.2f
             }
             if (showDownloading) {
                 glMatrix {

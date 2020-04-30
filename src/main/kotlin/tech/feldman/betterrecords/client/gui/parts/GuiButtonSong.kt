@@ -25,23 +25,22 @@ package tech.feldman.betterrecords.client.gui.parts
 
 import tech.feldman.betterrecords.api.library.Song
 import tech.feldman.betterrecords.extensions.glVertices
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraftforge.fml.client.config.GuiButtonExt
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class GuiButtonSong(id: Int, xPos: Int, yPos: Int, width: Int, height: Int, displayString: String, var entry: Song)
-    : GuiButtonExt(id, xPos, yPos, width, height, displayString) {
+class GuiButtonSong(xPos: Int, yPos: Int, width: Int, height: Int, displayString: String, var entry: Song, handler: IPressable)
+    : GuiButtonExt(xPos, yPos, width, height, displayString, handler) {
 
-    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int, partial: Float) {
-        super.drawButton(mc, mouseX, mouseY, partial)
+    override fun renderButton(mouseX: Int, mouseY: Int, partial: Float) {
+        super.renderButton(mouseX, mouseY, partial)
 
         if (visible) {
-            GlStateManager.disableTexture2D()
+            GlStateManager.disableTexture()
             glVertices(GL11.GL_QUADS) {
                 with(Color(entry.colorInt)) {
-                    GlStateManager.color(red / 255F, green / 255F, blue / 255F)
+                    GlStateManager.color3f(red / 255F, green / 255F, blue / 255F)
                 }
 
                 val topY = y + 2 // two from the top
@@ -54,7 +53,7 @@ class GuiButtonSong(id: Int, xPos: Int, yPos: Int, width: Int, height: Int, disp
                 GL11.glVertex2i(rightX, bottomY) // Bottom Right
                 GL11.glVertex2i(rightX, topY) // Top Right
             }
-            GlStateManager.enableTexture2D()
+            GlStateManager.enableTexture()
         }
     }
 

@@ -25,20 +25,22 @@ package tech.feldman.betterrecords.block.tile
 
 import tech.feldman.betterrecords.block.tile.delegate.CopyOnSetDelegate
 import tech.feldman.betterrecords.item.ItemRecord
-import net.minecraft.entity.item.EntityItem
+import net.minecraft.entity.item.ItemEntity
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.ITickable
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.ITickableTileEntity
+import net.minecraft.tileentity.TileEntityType
+import tech.feldman.betterrecords.block.ModBlocks
 
-class TileRecordEtcher : ModInventoryTile(), IInventory, ITickable {
+class TileRecordEtcher() : ModInventoryTile(ModBlocks.blockRecordEtcherType), IInventory, ITickableTileEntity {
 
     var record by CopyOnSetDelegate()
 
-    var recordEntity: EntityItem? = null
+    var recordEntity: ItemEntity? = null
         get() {
             if (!record.isEmpty) {
-                return EntityItem(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), record)
+                return ItemEntity(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), record)
             }
             return null
         }
@@ -47,7 +49,7 @@ class TileRecordEtcher : ModInventoryTile(), IInventory, ITickable {
     var needleLocation = 0F
     var needleOut = true
 
-    override fun update() {
+    override fun tick() {
         if (!record.isEmpty) {
             recordRotation += .08F
 
@@ -66,8 +68,6 @@ class TileRecordEtcher : ModInventoryTile(), IInventory, ITickable {
         }
     }
 
-    override fun getName() = "Record Etcher"
-
     override fun getSizeInventory() = 1
     override fun getInventoryStackLimit() = 1
     override fun isEmpty() = record.isEmpty
@@ -81,21 +81,22 @@ class TileRecordEtcher : ModInventoryTile(), IInventory, ITickable {
         return stack.item is ItemRecord
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
-        record = ItemStack(getCompoundTag("record"))
+        // TODO hmmmm
+        // record = ItemStack(getStackTagCompound("record"))
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
-        setTag("record", getStackTagCompound(record))
+        put("record", getStackTagCompound(record))
     }
 
-    fun getStackTagCompound(stack: ItemStack?): NBTTagCompound {
-        val tag = NBTTagCompound()
-        stack?.writeToNBT(tag)
+    fun getStackTagCompound(stack: ItemStack?): CompoundNBT {
+        val tag = CompoundNBT()
+        stack?.write(tag)
         return tag
     }
 }

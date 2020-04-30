@@ -23,34 +23,34 @@
  */
 package tech.feldman.betterrecords.client.handler
 
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.MOD_ID
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
 import tech.feldman.betterrecords.client.sound.SoundPlayer
 import tech.feldman.betterrecords.extensions.glMatrix
 import tech.feldman.betterrecords.item.ItemWire
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.GlStateManager
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.api.distmarker.Dist
 import org.lwjgl.opengl.GL11
 
-@Mod.EventBusSubscriber(modid = ID, value = [Side.CLIENT])
+@Mod.EventBusSubscriber(Dist.CLIENT, modid = MOD_ID)
 object RenderEventHandler {
 
     @SubscribeEvent
     fun onRenderEvent(event: RenderWorldLastEvent) {
-        val mc = Minecraft.getMinecraft()
+        val mc = Minecraft.getInstance()
         ItemWire.connection?.let {
             if (mc.player.heldItemMainhand.isEmpty || mc.player.heldItemMainhand.item !is ItemWire) {
                 ItemWire.connection = null
             } else {
                 glMatrix {
-                    GlStateManager.disableTexture2D()
+                    GlStateManager.disableTexture()
 
                     val dx = (mc.player.prevPosX + (mc.player.posX - mc.player.prevPosX) * event.partialTicks).toFloat()
                     val dy = (mc.player.prevPosY + (mc.player.posY - mc.player.prevPosY) * event.partialTicks).toFloat()
@@ -59,29 +59,31 @@ object RenderEventHandler {
                     val y1 = -(dy - if (ItemWire.connection!!.fromHome) ItemWire.connection!!.y1 else ItemWire.connection!!.y2)
                     val z1 = -(dz - if (ItemWire.connection!!.fromHome) ItemWire.connection!!.z1 else ItemWire.connection!!.z2)
 
-                    GlStateManager.translate(x1 + 0.5F, y1 + 0.5F, z1 + 0.5F)
-                    GlStateManager.glLineWidth(2F)
-                    GlStateManager.color(0F, 0F, 0F)
+                    GlStateManager.translatef(x1 + 0.5F, y1 + 0.5F, z1 + 0.5F)
+                    GlStateManager.lineWidth(2F)
+                    GlStateManager.color3f(0F, 0F, 0F)
 
-                    GlStateManager.glBegin(GL11.GL_LINE_STRIP)
-                    GlStateManager.glVertex3f(0F, 0F, 0F)
-                    GlStateManager.glVertex3f(0F, 3F, 0F)
-                    GlStateManager.glEnd()
+                    GlStateManager.begin(GL11.GL_LINE_STRIP)
+                    GlStateManager.vertex3f(0F, 0F, 0F)
+                    GlStateManager.vertex3f(0F, 3F, 0F)
+                    GlStateManager.end()
 
-                    if (ModConfig.client.devMode && ItemWire.connection!!.fromHome) {
+                    if (BetterRecordsConfig.CLIENT.devMode.get() && ItemWire.connection!!.fromHome) {
                         // TODO: Clean up this
                         val pos = BlockPos(ItemWire.connection!!.x1, ItemWire.connection!!.y1, ItemWire.connection!!.z1)
-                        if (SoundPlayer.isSoundPlayingAt(pos, mc.world.provider.dimension)) {
+                        // TODO
+                        // if (SoundPlayer.isSoundPlayingAt(pos, mc.world.dimension)) {
+                        if (SoundPlayer.isSoundPlayingAt(pos, 1)) {
                             val radius = (mc.world.getTileEntity(pos) as IRecordWireHome).songRadius
 
                             GlStateManager.disableCull()
                             GlStateManager.enableBlend()
-                            GlStateManager.color(0.1F, 0.1F, 0.1F, 0.2F)
+                            GlStateManager.color4f(0.1F, 0.1F, 0.1F, 0.2F)
 
-                            GlStateManager.glBegin(GL11.GL_LINE_STRIP)
+                            GlStateManager.begin(GL11.GL_LINE_STRIP)
                             GL11.glVertex2f(0F, 0F)
                             GL11.glVertex2f(0F, radius + 10F)
-                            GlStateManager.glEnd()
+                            GlStateManager.end()
 
                             val factor = Math.PI * 2 / 45
 
@@ -108,16 +110,16 @@ object RenderEventHandler {
                             }
 
                             draw(radius)
-                            val volumeRadius = radius * (Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER) * Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.RECORDS))
-                            GlStateManager.color(1F, 0.1F, 0.1F, 0.2F)
+                            val volumeRadius = radius * (Minecraft.getInstance().gameSettings.getSoundLevel(SoundCategory.MASTER) * Minecraft.getInstance().gameSettings.getSoundLevel(SoundCategory.RECORDS))
+                            GlStateManager.color4f(1F, 0.1F, 0.1F, 0.2F)
                             draw(volumeRadius)
 
                             GlStateManager.disableBlend()
                             GlStateManager.enableCull()
                         }
                     }
-                    GlStateManager.color(1F, 1F, 1F)
-                    GlStateManager.enableTexture2D()
+                    GlStateManager.color3f(1F, 1F, 1F)
+                    GlStateManager.enableTexture()
                 }
             }
         }

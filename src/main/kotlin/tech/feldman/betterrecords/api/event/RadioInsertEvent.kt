@@ -25,7 +25,7 @@ package tech.feldman.betterrecords.api.event
 
 import tech.feldman.betterrecords.api.sound.Sound
 import net.minecraft.util.math.BlockPos
-import net.minecraftforge.fml.common.eventhandler.Event
+import net.minecraftforge.eventbus.api.Event
 
 data class RadioInsertEvent(
         val pos: BlockPos,

@@ -23,148 +23,151 @@
  */
 package tech.feldman.betterrecords.client.model
 
-import net.minecraft.client.model.ModelBase
-import net.minecraft.client.model.ModelRenderer
-import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.model.Model
+import net.minecraft.client.renderer.entity.model.RendererModel
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity
 import net.minecraft.item.ItemStack
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class ModelRadio : ModelBase() {
-    internal var Crystal_1: ModelRenderer
-    internal var Crystal_2: ModelRenderer
-    internal var Crystal_3: ModelRenderer
-    internal var Crystal_4: ModelRenderer
-    internal var body1: ModelRenderer
-    internal var body2: ModelRenderer
-    internal var body3: ModelRenderer
-    internal var body4: ModelRenderer
-    internal var body5: ModelRenderer
-    internal var body6: ModelRenderer
-    internal var body7: ModelRenderer
-    internal var body8: ModelRenderer
-    internal var body9: ModelRenderer
-    internal var a1: ModelRenderer
-    internal var a2: ModelRenderer
-    internal var a3: ModelRenderer
-    internal var a4: ModelRenderer
-    internal var a5: ModelRenderer
-    internal var a6: ModelRenderer
-    internal var a7: ModelRenderer
-    internal var a8: ModelRenderer
-    internal var Button1: ModelRenderer
-    internal var Button1m1: ModelRenderer
-    internal var Button2: ModelRenderer
-    internal var Button2m1: ModelRenderer
-    internal var Glass: ModelRenderer
+@OnlyIn(Dist.CLIENT)
+class ModelRadio : Model() {
+    internal var Crystal_1: RendererModel
+    internal var Crystal_2: RendererModel
+    internal var Crystal_3: RendererModel
+    internal var Crystal_4: RendererModel
+    internal var body1: RendererModel
+    internal var body2: RendererModel
+    internal var body3: RendererModel
+    internal var body4: RendererModel
+    internal var body5: RendererModel
+    internal var body6: RendererModel
+    internal var body7: RendererModel
+    internal var body8: RendererModel
+    internal var body9: RendererModel
+    internal var a1: RendererModel
+    internal var a2: RendererModel
+    internal var a3: RendererModel
+    internal var a4: RendererModel
+    internal var a5: RendererModel
+    internal var a6: RendererModel
+    internal var a7: RendererModel
+    internal var a8: RendererModel
+    internal var Button1: RendererModel
+    internal var Button1m1: RendererModel
+    internal var Button2: RendererModel
+    internal var Button2m1: RendererModel
+    internal var Glass: RendererModel
 
     init {
         textureWidth = 128
         textureHeight = 128
 
-        this.Crystal_3 = ModelRenderer(this, 1, 0).apply {
+        this.Crystal_3 = RendererModel(this, 1, 0).apply {
             setRotationPoint(0.0F, 18.0F, -3.0F)
             addBox(-1.0F, -1.0F, -1.0F, 2, 2, 2)
         }
-        this.Button1 = ModelRenderer(this, 15, 15).apply {
+        this.Button1 = RendererModel(this, 15, 15).apply {
             setRotationPoint(-4.8F, 20.5F, -6.0F)
             addBox(-1.0F, -1.0F, -0.5F, 2, 2, 1)
         }
-        this.Crystal_4 = ModelRenderer(this, 1, 0).apply {
+        this.Crystal_4 = RendererModel(this, 1, 0).apply {
             setRotationPoint(0.0F, 18.0F, -3.0F)
             addBox(-1.0F, -1.0F, -1.0F, 2, 2, 2)
         }
-        this.Crystal_1 = ModelRenderer(this, 1, 0).apply {
+        this.Crystal_1 = RendererModel(this, 1, 0).apply {
             setRotationPoint(0.0F, 18.0F, -3.0F)
             addBox(-1.0F, -1.0F, -1.0F, 2, 2, 2)
         }
-        this.Crystal_2 = ModelRenderer(this, 1, 0).apply {
+        this.Crystal_2 = RendererModel(this, 1, 0).apply {
             setRotationPoint(0.0F, 18.0F, -3.0F)
             addBox(-1.0F, -1.0F, -1.0F, 2, 2, 2)
         }
         this.setRotationAngles(this.Crystal_2, 0.0F, -0.7853981633974483F, 0.0F)
-        this.Glass = ModelRenderer(this, 13, 20).apply {
+        this.Glass = RendererModel(this, 13, 20).apply {
             setRotationPoint(0.0F, 18.0F, -6.0F)
             addBox(-2.5F, -1.5F, 0.0F, 5, 3, 0)
         }
-        this.body2 = ModelRenderer(this, 76, 41).apply {
+        this.body2 = RendererModel(this, 76, 41).apply {
             setRotationPoint(0.0F, 8.5F, 0.0F)
             addBox(-7.0F, -1.0F, -6.0F, 14, 2, 12)
         }
-        this.body3 = ModelRenderer(this, 80, 27).apply {
+        this.body3 = RendererModel(this, 80, 27).apply {
             setRotationPoint(0.0F, 6.5F, 0.0F)
             addBox(-6.0F, -1.0F, -6.0F, 12, 2, 12)
         }
-        this.body4 = ModelRenderer(this, 85, 13).apply {
+        this.body4 = RendererModel(this, 85, 13).apply {
             setRotationPoint(0.0F, 4.5F, 0.0F)
             addBox(-4.5F, -1.0F, -6.0F, 9, 2, 12)
         }
-        this.body5 = ModelRenderer(this, 91, 0).apply {
+        this.body5 = RendererModel(this, 91, 0).apply {
             setRotationPoint(0.0F, 3.0F, 0.0F)
             addBox(-2.5F, -0.5F, -6.0F, 5, 1, 12)
         }
-        this.body6 = ModelRenderer(this, 78, 74).apply {
+        this.body6 = RendererModel(this, 78, 74).apply {
             setRotationPoint(0.0F, 20.0F, 2.0F)
             addBox(-7.5F, -3.5F, -4.0F, 15, 7, 8)
         }
-        this.body7 = ModelRenderer(this, 29, 36).apply {
+        this.body7 = RendererModel(this, 29, 36).apply {
             setRotationPoint(-5.0F, 20.0F, -4.0F)
             addBox(-2.5F, -3.5F, -2.0F, 5, 7, 4)
         }
-        this.body8 = ModelRenderer(this, 47, 36).apply {
+        this.body8 = RendererModel(this, 47, 36).apply {
             setRotationPoint(5.0F, 20.0F, -4.0F)
             addBox(-2.5F, -3.5F, -2.0F, 5, 7, 4)
         }
-        this.body9 = ModelRenderer(this, 37, 50).apply {
+        this.body9 = RendererModel(this, 37, 50).apply {
             setRotationPoint(0.0F, 21.5F, -4.0F)
             addBox(-2.5F, -2.0F, -2.0F, 5, 4, 4)
         }
-        this.body1 = ModelRenderer(this, 74, 55).apply {
+        this.body1 = RendererModel(this, 74, 55).apply {
             setRotationPoint(0.0F, 13.0F, 0.0F)
             addBox(-7.5F, -3.5F, -6.0F, 15, 7, 12)
         }
-        this.Button1m1 = ModelRenderer(this, 16, 12).apply {
+        this.Button1m1 = RendererModel(this, 16, 12).apply {
             setRotationPoint(-4.8F, 20.5F, -6.5F)
             addBox(-0.5F, -0.5F, -0.5F, 1, 1, 1)
         }
-        this.Button2m1 = ModelRenderer(this, 16, 12).apply {
+        this.Button2m1 = RendererModel(this, 16, 12).apply {
             setRotationPoint(5.0F, 20.5F, -6.5F)
             addBox(-0.5F, -0.5F, -0.5F, 1, 1, 1)
         }
-        this.a1 = ModelRenderer(this, 60, 15).apply {
+        this.a1 = RendererModel(this, 60, 15).apply {
             setRotationPoint(-7.0F, 13.0F, 0.0F)
             addBox(-1.0F, -1.0F, -6.5F, 2, 2, 13)
         }
-        this.a2 = ModelRenderer(this, 60, 15).apply {
+        this.a2 = RendererModel(this, 60, 15).apply {
             setRotationPoint(7.0F, 13.0F, 0.0F)
             addBox(-1.0F, -1.0F, -6.5F, 2, 2, 13)
         }
-        this.a3 = ModelRenderer(this, 61, 0).apply {
+        this.a3 = RendererModel(this, 61, 0).apply {
             setRotationPoint(7.0F, 12.0F, 0.0F)
             addBox(-1.5F, -0.5F, -7.0F, 3, 1, 14)
         }
-        this.a4 = ModelRenderer(this, 61, 0).apply {
+        this.a4 = RendererModel(this, 61, 0).apply {
             setRotationPoint(-7.0F, 12.0F, 0.0F)
             addBox(-1.5F, -0.5F, -7.0F, 3, 1, 14)
         }
-        this.a5 = ModelRenderer(this, 60, 15).apply {
+        this.a5 = RendererModel(this, 60, 15).apply {
             setRotationPoint(-7.0F, 22.5F, 0.0F)
             addBox(-1.0F, -1.0F, -6.5F, 2, 2, 13)
         }
-        this.a6 = ModelRenderer(this, 61, 0).apply {
+        this.a6 = RendererModel(this, 61, 0).apply {
             setRotationPoint(-7.0F, 23.5F, 0.0F)
             addBox(-1.5F, -0.5F, -7.0F, 3, 1, 14)
         }
-        this.a7 = ModelRenderer(this, 60, 15).apply {
+        this.a7 = RendererModel(this, 60, 15).apply {
             setRotationPoint(7.0F, 22.5F, 0.0F)
             addBox(-1.0F, -1.0F, -6.5F, 2, 2, 13)
         }
-        this.a8 = ModelRenderer(this, 61, 0).apply {
+        this.a8 = RendererModel(this, 61, 0).apply {
             setRotationPoint(7.0F, 23.5F, 0.0F)
             addBox(-1.5F, -0.5F, -7.0F, 3, 1, 14)
         }
-        this.Button2 = ModelRenderer(this, 15, 15).apply {
+        this.Button2 = RendererModel(this, 15, 15).apply {
             setRotationPoint(4.8F, 20.5F, -6.0F)
             addBox(-1.0F, -1.0F, -0.5F, 2, 2, 1)
         }
@@ -172,30 +175,28 @@ class ModelRadio : ModelBase() {
 
 
     fun render(entity: Entity?, f: Float, f1: Float, f2: Float, f3: Float, f4: Float, f5: Float, crystal: ItemStack) {
-        super.render(entity, f, f1, f2, f3, f4, f5)
-        setRotationAngles(f, f1, f2, f3, f4, f5, entity)
 
         GlStateManager.pushMatrix()
 
-        GlStateManager.translate(0f, .42f, 0f)
+        GlStateManager.translatef(0f, .42f, 0f)
         GL11.glScalef(.7f, .715f, .7f)
         if (!crystal.isEmpty) {
             GlStateManager.pushMatrix()
 
             GlStateManager.enableBlend()
-            if (crystal.tagCompound!!.hasKey("color")) {
-                val color = Color(crystal.tagCompound!!.getInteger("color"))
-                GlStateManager.color(color.red / 255f, color.green / 255f, color.blue / 255f, .6f)
+            if (crystal.tag!!.contains("color")) {
+                val color = Color(crystal.tag!!.getInt("color"))
+                GlStateManager.color4f(color.red / 255f, color.green / 255f, color.blue / 255f, .6f)
             } else
-                GlStateManager.color(1f, 1f, 1f, .6f)
-            GlStateManager.translate(0f, 0f, -.18f)
-            GlStateManager.rotate(f1, 0f, 1f, 0f)
-            GlStateManager.translate(0f, 0f, .18f)
+                GlStateManager.color4f(1f, 1f, 1f, .6f)
+            GlStateManager.translatef(0f, 0f, -.18f)
+            GlStateManager.rotatef(f1, 0f, 1f, 0f)
+            GlStateManager.translatef(0f, 0f, .18f)
             Crystal_1.render(f5)
             Crystal_2.render(f5)
             Crystal_3.render(f5)
             Crystal_4.render(f5)
-            GlStateManager.color(1.0f, 1.0f, 1.0f)
+            GlStateManager.color3f(1.0f, 1.0f, 1.0f)
             GlStateManager.disableBlend()
 
             GlStateManager.popMatrix()
@@ -228,7 +229,7 @@ class ModelRadio : ModelBase() {
 
         GlStateManager.pushMatrix()
 
-        GlStateManager.translate(f, 0f, 0.01f)
+        GlStateManager.translatef(f, 0f, 0.01f)
         Glass.render(f5)
 
         GlStateManager.popMatrix()
@@ -236,7 +237,7 @@ class ModelRadio : ModelBase() {
         GlStateManager.popMatrix()
     }
 
-    private fun setRotationAngles(model: ModelRenderer, x: Float, y: Float, z: Float) {
+    private fun setRotationAngles(model: RendererModel, x: Float, y: Float, z: Float) {
         model.rotateAngleX = x
         model.rotateAngleY = y
         model.rotateAngleZ = z

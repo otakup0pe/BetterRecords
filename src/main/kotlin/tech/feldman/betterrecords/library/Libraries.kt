@@ -23,22 +23,24 @@
  */
 package tech.feldman.betterrecords.library
 
+import net.alexwells.kottle.FMLKotlinModLoadingContext
 import tech.feldman.betterrecords.BetterRecords
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
+import tech.feldman.betterrecords.MOD_ID
+import tech.feldman.betterrecords.BetterRecordsConfig
 import tech.feldman.betterrecords.network.PacketHandler
 import tech.feldman.betterrecords.network.PacketSendLibrary
 import tech.feldman.betterrecords.util.BetterUtils
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.EntityPlayerMP
-import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.PlayerEvent
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.DistExecutor
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
+import java.util.function.Supplier
 
 /**
  * Collection of all Libraries containing the songs / radio stations
@@ -53,14 +55,14 @@ import java.net.URL
  * If we are running on the server, entries in this library will be sent to the client.
  * If we are running on the client, entries from the server will be added to this library.
  */
-@Mod.EventBusSubscriber(Side.SERVER, modid = ID)
+@Mod.EventBusSubscriber(Dist.DEDICATED_SERVER, modid = MOD_ID)
 object Libraries {
 
     /** The directory where local libraries are stored */
-    private val LOCAL_LIBRARY_DIR = File(when (FMLCommonHandler.instance().side) {
-        Side.CLIENT -> Minecraft.getMinecraft().mcDataDir
-        Side.SERVER -> File(".")
-    }, "betterrecords/library")
+    private val LOCAL_LIBRARY_DIR = DistExecutor.runForDist(
+            { Supplier { Minecraft.getInstance().gameDir } },
+            { Supplier { File(".") }}
+    )
 
     /** All of the library files that have been loaded */
     val libraries = mutableListOf<Library>()
@@ -89,7 +91,7 @@ object Libraries {
         }
 
         // Load the mod's built in libraries
-        if (ModConfig.client.loadDefaultLibraries) {
+        if (BetterRecordsConfig.COMMON.loadDefaultLibraries.get()) {
             listOf("assets/betterrecords/libraries/kevin_macleod.json")
                     .map { RemoteLibrary(BetterUtils.getResourceFromJar(it)) }
                     .forEach {
@@ -107,7 +109,7 @@ object Libraries {
                     tech.feldman.betterrecords.BetterRecords.logger.info("Loaded Local Library: ${it.file}")
                 }
 
-        if (ModConfig.useRemoteLibraries) {
+        if (BetterRecordsConfig.COMMON.useRemoteLibraries.get()) {
             // Load remote libraries
             remoteLibrariesFile
                     .readLines()
@@ -131,10 +133,10 @@ object Libraries {
     @SubscribeEvent
     fun onClientConnect(event: PlayerEvent.PlayerLoggedInEvent) {
         libraries.forEach {
-            tech.feldman.betterrecords.BetterRecords.logger.info("Sending library \"${it.name}\" to client: ${event.player.name}")
+            BetterRecords.logger.info("Sending library \"${it.name}\" to client: ${event.player.name}")
 
             // We can safely cast the player because this event should only be listened to on the server
-            PacketHandler.sendToPlayer(PacketSendLibrary(it), event.player as EntityPlayerMP)
+            PacketHandler.sendToPlayer(event.player as ServerPlayerEntity, PacketSendLibrary(it))
         }
     }
 }

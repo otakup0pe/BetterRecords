@@ -23,35 +23,45 @@
  */
 package tech.feldman.betterrecords
 
+import net.alexwells.kottle.FMLKotlinModLoadingContext
 import tech.feldman.betterrecords.item.ModItems
-import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.item.ItemGroup
 import net.minecraft.item.ItemStack
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.fml.config.ModConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import tech.feldman.betterrecords.proxy.ClientProxy
+import tech.feldman.betterrecords.proxy.CommonProxy
+import tech.feldman.betterrecords.proxy.ServerProxy
+import java.util.function.Supplier
 
-@Mod(modid = tech.feldman.betterrecords.ID, name = tech.feldman.betterrecords.NAME, version = tech.feldman.betterrecords.VERSION, modLanguageAdapter = tech.feldman.betterrecords.LANGUAGE_ADAPTER, dependencies = tech.feldman.betterrecords.DEPENDENCIES)
+const val MOD_ID = "betterrecords"
+
+@Mod(MOD_ID)
 object BetterRecords {
 
-    val logger: Logger = LogManager.getLogger(tech.feldman.betterrecords.ID)
+    val logger: Logger = LogManager.getLogger(MOD_ID)
 
-    @SidedProxy(clientSide = tech.feldman.betterrecords.CLIENT_PROXY, serverSide = tech.feldman.betterrecords.SERVER_PROXY)
-    lateinit var proxy: tech.feldman.betterrecords.CommonProxy
+    @Suppress("RemoveExplicitTypeArguments")
+    var proxy = DistExecutor.runForDist<CommonProxy>(
+            { Supplier { ClientProxy() }},
+            { Supplier { ServerProxy() }}
+    )
 
-    val creativeTab = object : CreativeTabs(tech.feldman.betterrecords.ID) {
-        override fun getTabIconItem() = ItemStack(ModItems.itemRecord)
+    val itemGroup = object: ItemGroup(MOD_ID) {
+        override fun createIcon() = ItemStack(ModItems.itemRecord)
     }
 
-    @Mod.EventHandler
-    fun preInit(event: FMLPreInitializationEvent) = tech.feldman.betterrecords.BetterRecords.proxy.preInit(event)
+    // And we're off to the races
+    init {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, BetterRecordsConfig.CLIENT_SPEC)
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BetterRecordsConfig.COMMON_SPEC)
 
-    @Mod.EventHandler
-    fun init(event: FMLInitializationEvent) = tech.feldman.betterrecords.BetterRecords.proxy.init(event)
-
-    @Mod.EventHandler
-    fun postInit(event: FMLPostInitializationEvent) = tech.feldman.betterrecords.BetterRecords.proxy.postInit(event)
+        FMLKotlinModLoadingContext.get().modEventBus.register(proxy)
+        MinecraftForge.EVENT_BUS.register(proxy)
+    }
 }

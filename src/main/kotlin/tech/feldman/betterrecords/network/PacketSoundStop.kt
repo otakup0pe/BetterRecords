@@ -24,40 +24,37 @@
 package tech.feldman.betterrecords.network
 
 import tech.feldman.betterrecords.api.event.SoundStopEvent
-import io.netty.buffer.ByteBuf
+import net.minecraft.network.PacketBuffer
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
+import net.minecraftforge.fml.network.NetworkEvent
+import java.util.function.Supplier
 
 class PacketSoundStop @JvmOverloads constructor(
         var pos: BlockPos = BlockPos(0, 0, 0),
         var dimension: Int = -1
-) : IMessage {
+) {
 
-    override fun toBytes(buf: ByteBuf) {
-        buf.writeInt(pos.x)
-        buf.writeInt(pos.y)
-        buf.writeInt(pos.z)
+    object Code {
+        fun encode(msg: PacketSoundStop, buf: PacketBuffer) {
+            buf.writeBlockPos(msg.pos)
+            buf.writeInt(msg.dimension)
+        }
 
-        buf.writeInt(dimension)
+        fun decode(buf: PacketBuffer): PacketSoundStop {
+            return PacketSoundStop(
+                    buf.readBlockPos(),
+                    buf.readInt()
+            )
+        }
     }
 
-    override fun fromBytes(buf: ByteBuf) {
-        pos = BlockPos(buf.readInt(), buf.readInt(), buf.readInt())
+    object Handler {
 
-        dimension = buf.readInt()
-    }
-
-    class Handler : IMessageHandler<PacketSoundStop, IMessage> {
-
-        override fun onMessage(message: PacketSoundStop, ctx: MessageContext): IMessage? {
+        fun handle(message: PacketSoundStop, ctx: Supplier<NetworkEvent.Context>) {
             with(message) {
                 MinecraftForge.EVENT_BUS.post(SoundStopEvent(pos, dimension))
             }
-
-            return null
         }
     }
 }

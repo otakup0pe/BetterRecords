@@ -25,7 +25,7 @@ package tech.feldman.betterrecords.helper.nbt
 
 import tech.feldman.betterrecords.api.sound.IShufflableSoundHolder
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 
 private const val SHUFFLABLE_TAG = "shufflable"
 
@@ -34,10 +34,10 @@ fun isShufflable(stack: ItemStack): Boolean {
         return false
     }
 
-    if (stack.hasTagCompound()) {
-        val tagCompound = stack.tagCompound!!
+    if (stack.hasTag()) {
+        val tag = stack.tag!!
 
-        return tagCompound.getBoolean(SHUFFLABLE_TAG)
+        return tag.getBoolean(SHUFFLABLE_TAG)
     }
 
     return false
@@ -48,13 +48,14 @@ fun setShufflable(stack: ItemStack, shufflable: Boolean) {
         return
     }
 
-    val tagCompound = if (stack.hasTagCompound()) {
-        stack.tagCompound!!
+    val tag = if (stack.hasTag()) {
+        stack.tag!!
     } else {
-        NBTTagCompound()
+        CompoundNBT()
     }
 
-    tagCompound.setBoolean(SHUFFLABLE_TAG, shufflable)
 
-    stack.tagCompound = tagCompound
+    tag.putBoolean(SHUFFLABLE_TAG, shufflable)
+
+    stack.tag = tag
 }

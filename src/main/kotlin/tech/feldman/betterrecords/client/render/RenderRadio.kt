@@ -23,29 +23,30 @@
  */
 package tech.feldman.betterrecords.client.render
 
-import tech.feldman.betterrecords.ID
+import tech.feldman.betterrecords.MOD_ID
 import tech.feldman.betterrecords.block.tile.TileRadio
 import tech.feldman.betterrecords.client.model.ModelRadio
 import tech.feldman.betterrecords.client.render.helper.renderConnectionsAndInfo
-import net.minecraft.client.renderer.GlStateManager.*
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer
+import com.mojang.blaze3d.platform.GlStateManager.*
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 
-class RenderRadio : TileEntitySpecialRenderer<TileRadio>() {
+class RenderRadio : TileEntityRenderer<TileRadio>() {
 
     val MODEL = ModelRadio()
-    val TEXTURE = ResourceLocation(ID, "textures/models/radio.png")
+    val TEXTURE = ResourceLocation(MOD_ID, "textures/models/radio.png")
 
-    override fun render(te: TileRadio?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int, alpha: Float) {
+    override fun render(te: TileRadio?, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int) {
         pushMatrix()
 
-        translate(x + 0.5, y + 1.5, z + 0.5)
-        rotate(180F, 0.0F, 0.0F, 1.0F)
+        translated(x + 0.5, y + 1.5, z + 0.5)
+        rotatef(180F, 0.0F, 0.0F, 1.0F)
 
-        te?.let {
-            rotate(te.blockMetadata * 90 + 180F, 0.0F, 1.0F, 0.0F)
-        }
+        // TODO Rotate
+        // te?.let {
+        //     rotatef(te.blockMetadata * 90 + 180F, 0.0F, 1.0F, 0.0F)
+        // }
 
         bindTexture(TEXTURE)
 

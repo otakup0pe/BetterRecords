@@ -27,9 +27,11 @@ import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.block.tile.delegate.CopyOnSetDelegate
 import tech.feldman.betterrecords.helper.ConnectionHelper
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.TileEntityType
+import tech.feldman.betterrecords.block.ModBlocks
 
-class TileRadio : SimpleRecordWireHome(), IRecordWire {
+class TileRadio() : SimpleRecordWireHome(ModBlocks.blockRadioType), IRecordWire {
 
     var crystal by CopyOnSetDelegate()
     override val record: ItemStack
@@ -46,7 +48,7 @@ class TileRadio : SimpleRecordWireHome(), IRecordWire {
 
     override val songRadiusIncrease = 30F
 
-    override fun update() {
+    override fun tick() {
         if (opening && openAmount < 0.268F) {
             openAmount += 0.04F
         } else if (!opening && openAmount > 0F) {
@@ -63,35 +65,37 @@ class TileRadio : SimpleRecordWireHome(), IRecordWire {
             crystalFloaty += 0.86F
         }
 
-        super.update()
+        super.tick()
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
-        crystal = ItemStack(getCompoundTag("crystal"))
+        // TODO: HMMM
+        // crystal = ItemStack(getCompound("crystal"))
         opening = getBoolean("opening")
         connections = ConnectionHelper.unserializeConnections(getString("connections")).toMutableList()
         wireSystemInfo = ConnectionHelper.unserializeWireSystemInfo(getString("wireSystemInfo"))
         playRadius = getFloat("playRadius")
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
-        setFloat("rotation", blockMetadata.toFloat())
-        setTag("crystal", getStackTagCompound(crystal))
-        setBoolean("opening", opening)
-        setString("connections", ConnectionHelper.serializeConnections(connections))
-        setString("wireSystemInfo", ConnectionHelper.serializeWireSystemInfo(wireSystemInfo))
-        setFloat("playRadius", playRadius)
+        // TODO hmmm.
+        // putFloat("rotation", blockMetadata.toFloat())
+        put("crystal", getStackTagCompound(crystal))
+        putBoolean("opening", opening)
+        putString("connections", ConnectionHelper.serializeConnections(connections))
+        putString("wireSystemInfo", ConnectionHelper.serializeWireSystemInfo(wireSystemInfo))
+        putFloat("playRadius", playRadius)
 
         return compound
     }
 
-    fun getStackTagCompound(stack: ItemStack?): NBTTagCompound {
-        val tag = NBTTagCompound()
-        stack?.writeToNBT(tag)
+    fun getStackTagCompound(stack: ItemStack?): CompoundNBT {
+        val tag = CompoundNBT()
+        stack?.write(tag)
         return tag
     }
 }

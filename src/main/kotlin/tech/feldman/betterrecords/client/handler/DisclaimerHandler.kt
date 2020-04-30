@@ -23,21 +23,21 @@
  */
 package tech.feldman.betterrecords.client.handler
 
-import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
-import net.minecraft.entity.player.EntityPlayer
+import tech.feldman.betterrecords.MOD_ID
+import tech.feldman.betterrecords.BetterRecordsConfig
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.api.distmarker.Dist
 
 /**
  * Handler to warn the player when they log in about flashing lights.
  */
-@Mod.EventBusSubscriber(modid = ID, value = [Side.CLIENT])
+@Mod.EventBusSubscriber(Dist.CLIENT, modid = MOD_ID)
 object DisclaimerHandler {
 
     /**
@@ -48,9 +48,9 @@ object DisclaimerHandler {
      */
     @SubscribeEvent
     fun onFirstJoin(event: EntityJoinWorldEvent) {
-        if (event.entity is EntityPlayer && ModConfig.client.flashMode == -1) {
+        if (event.entity is PlayerEntity && BetterRecordsConfig.CLIENT.flashMode.get() == -1) {
 
-            val message = TextComponentTranslation("betterrecords.warning").apply {
+            val message = TranslationTextComponent("betterrecords.warning").apply {
                 style = Style().apply {
                     color = TextFormatting.GREEN
                 }
@@ -58,8 +58,8 @@ object DisclaimerHandler {
             event.entity.sendMessage(message)
 
             // Update default flash mode, to show we've already warned them
-            ModConfig.client.flashMode = 1
-            ModConfig.update()
+            BetterRecordsConfig.CLIENT.flashMode.set(1)
+            BetterRecordsConfig.CLIENT_SPEC.save() // TODO: Is this needed?
         }
     }
 }

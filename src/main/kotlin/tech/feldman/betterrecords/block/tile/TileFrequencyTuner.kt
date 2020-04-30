@@ -23,22 +23,22 @@
  */
 package tech.feldman.betterrecords.block.tile
 
-import tech.feldman.betterrecords.api.sound.ISoundHolder
 import tech.feldman.betterrecords.block.tile.delegate.CopyOnSetDelegate
 import tech.feldman.betterrecords.helper.nbt.getSounds
 import tech.feldman.betterrecords.item.ItemFrequencyCrystal
 import net.minecraft.inventory.IInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.ITickable
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.tileentity.ITickableTileEntity
+import net.minecraft.tileentity.TileEntityType
+import net.minecraftforge.registries.ObjectHolder
+import tech.feldman.betterrecords.block.ModBlocks
 
-class TileFrequencyTuner : ModInventoryTile(), IInventory, ITickable {
+class TileFrequencyTuner() : ModInventoryTile(ModBlocks.blockFrequencyTunerType), IInventory, ITickableTileEntity {
 
     var crystal by CopyOnSetDelegate()
 
     var crystalFloaty = 0F
-
-    override fun getName() = "Frequency Tuner"
 
     override fun getSizeInventory() = 1
     override fun getInventoryStackLimit() = 1
@@ -53,28 +53,28 @@ class TileFrequencyTuner : ModInventoryTile(), IInventory, ITickable {
         crystal = stack
     }
 
-    override fun update() {
+    override fun tick() {
         crystal.let {
             crystalFloaty += 0.86F
         }
     }
 
-    override fun readFromNBT(compound: NBTTagCompound) = compound.run {
-        super.readFromNBT(compound)
+    override fun read(compound: CompoundNBT) = compound.run {
+        super.read(compound)
 
-        crystal = ItemStack(getCompoundTag("crystal"))
-        crystal = ItemStack(getCompoundTag("crystal"))
+        // TODO hmmm
+//        crystal = ItemStack(getCompound("crystal"))
     }
 
-    override fun writeToNBT(compound: NBTTagCompound) = compound.apply {
-        super.writeToNBT(compound)
+    override fun write(compound: CompoundNBT) = compound.apply {
+        super.write(compound)
 
-        setTag("crystal", getStackTagCompound(crystal))
+        put("crystal", getStackTagCompound(crystal))
     }
 
-    fun getStackTagCompound(stack: ItemStack?): NBTTagCompound {
-        val tag = NBTTagCompound()
-        stack?.writeToNBT(tag)
+    fun getStackTagCompound(stack: ItemStack?): CompoundNBT {
+        val tag = CompoundNBT()
+        stack?.write(tag)
         return tag
     }
 

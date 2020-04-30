@@ -27,24 +27,20 @@ import tech.feldman.betterrecords.api.wire.IRecordWire
 import tech.feldman.betterrecords.api.wire.IRecordWireHome
 import tech.feldman.betterrecords.api.wire.IRecordWireManipulator
 import tech.feldman.betterrecords.helper.ConnectionHelper
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.EnumActionResult
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.EnumHand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.item.ItemUseContext
+import net.minecraft.util.ActionResultType
 
-class ItemWireCutter(name: String) : ModItem(name), IRecordWireManipulator {
+class ItemWireCutter(properties: Properties) : ModItem(properties), IRecordWireManipulator {
 
-    override fun onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, facing: EnumFacing, hitX: Float, hitY: Float, hitZ: Float): EnumActionResult {
-        val te = world.getTileEntity(pos)
+    override fun onItemUse(context: ItemUseContext): ActionResultType {
+        val te = context.world.getTileEntity(context.pos)
         if (te == null || te !is IRecordWire || te is IRecordWireHome)
-            return EnumActionResult.PASS
+            return ActionResultType.PASS
 
-        if (world.isRemote)
-            return EnumActionResult.PASS
+        if (context.world.isRemote)
+            return ActionResultType.PASS
 
-        ConnectionHelper.clearConnections(te.world, te as IRecordWire)
-        return EnumActionResult.PASS
+        ConnectionHelper.clearConnections(context.world, te as IRecordWire)
+        return ActionResultType.PASS
     }
 }

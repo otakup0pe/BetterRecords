@@ -33,17 +33,17 @@ import tech.feldman.betterrecords.helper.nbt.isShufflable
 import net.minecraft.client.resources.I18n
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.item.ItemStack
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.world.World
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 
-class ItemRecord(name: String) : ModItem(name), ISoundHolder, IRepeatableSoundHolder, IShufflableSoundHolder, IColorableSoundHolder {
+class ItemRecord(properties: Properties) : ModItem(properties.maxStackSize(1)), ISoundHolder, IRepeatableSoundHolder, IShufflableSoundHolder, IColorableSoundHolder {
 
     override val maxSounds = 12
 
-    init {
-        maxStackSize = 1
-    }
-
-    override fun getUnlocalizedName(stack: ItemStack): String {
+    override fun getTranslationKey(stack: ItemStack): String {
         val songs = getSounds(stack)
 
         return when (songs.count()) {
@@ -53,21 +53,23 @@ class ItemRecord(name: String) : ModItem(name), ISoundHolder, IRepeatableSoundHo
         }
     }
 
-    override fun getItemStackDisplayName(stack: ItemStack): String {
+    override fun getDisplayName(stack: ItemStack): ITextComponent {
         val songs = getSounds(stack)
 
         // If there's only one song on the record, we don't want to localize anything
         // and just use that name instead
         if (songs.count() == 1) {
-            return songs.first().name
+            return StringTextComponent(songs.first().name)
         }
 
         // If it has no songs or more than one, we fall back on localizing it.
-        return super.getItemStackDisplayName(stack)
+        return super.getDisplayName(stack)
     }
 
-    override fun addInformation(stack: ItemStack, world: World?, tooltip: MutableList<String>, flag: ITooltipFlag) {
+    @OnlyIn(Dist.CLIENT)
+    override fun addInformation(stack: ItemStack, world: World?, tooltip: MutableList<ITextComponent>, flag: ITooltipFlag) {
         val songs = getSounds(stack)
+
 
         // We only want to add a tooltip to the record if it is not empty
         if (songs.isNotEmpty()) {
@@ -76,26 +78,26 @@ class ItemRecord(name: String) : ModItem(name), ISoundHolder, IRepeatableSoundHo
             if (songs.size > 1) {
                 // If there are multiple songs on the record, we want to display them all in an itemized list
                 songs.forEachIndexed { index, sound ->
-                    tooltip += I18n.format("item.betterrecords:record.desc.song", index + 1, sound.name)
+                    tooltip.add(StringTextComponent(I18n.format("item.betterrecords:record.desc.song", index + 1, sound.name)))
                 }
             } else {
                 // If there is only one song on the record, we only want to display the author,
                 // Because the name of the song is displayed as the name
-                tooltip += I18n.format("item.betterrecords:record.desc.by", songs.first().author)
+                tooltip.add(StringTextComponent(I18n.format("item.betterrecords:record.desc.by", songs.first().author)))
             }
 
             // Add the size to the record.
             val size = songs.sumBy { it.size }
-            tooltip += I18n.format("item.betterrecords:record.desc.size", size)
+            tooltip.add(StringTextComponent(I18n.format("item.betterrecords:record.desc.size", size)))
 
             // If it's repeatable, we show that.
             if (isRepeatable(stack)) {
-                tooltip += "\u00a7e" + I18n.format("item.betterrecords:record.desc.repeatable")
+                tooltip.add(StringTextComponent("\u00a7e" + I18n.format("item.betterrecords:record.desc.repeatable")))
             }
 
             // If it's shufflable, we show that.
             if (isShufflable(stack)) {
-                tooltip += "\u00a7e" + I18n.format("item.betterrecords:record.desc.shufflable")
+                tooltip.add(StringTextComponent("\u00a7e" + I18n.format("item.betterrecords:record.desc.shufflable")))
             }
         }
     }

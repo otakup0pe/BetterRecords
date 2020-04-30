@@ -23,27 +23,22 @@
  */
 package tech.feldman.betterrecords.block.tile
 
-import net.minecraft.block.state.IBlockState
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.network.NetworkManager
-import net.minecraft.network.play.server.SPacketUpdateTileEntity
+import net.minecraft.network.play.server.SUpdateTileEntityPacket
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.tileentity.TileEntityType
 
-abstract class ModTile : TileEntity() {
+abstract class ModTile(type: TileEntityType<*>) : TileEntity(type) {
 
-    override fun shouldRefresh(world: World, pos: BlockPos, oldState: IBlockState, newState: IBlockState) =
-            oldState.block != newState.block
+    override fun onDataPacket(net: NetworkManager, pkt: SUpdateTileEntityPacket) =
+            read(pkt.nbtCompound)
 
-    override fun onDataPacket(net: NetworkManager, pkt: SPacketUpdateTileEntity) =
-            readFromNBT(pkt.nbtCompound)
+    override fun getUpdateTag() = write(CompoundNBT())
 
-    override fun getUpdateTag() = writeToNBT(NBTTagCompound())
-
-    override fun getUpdatePacket(): SPacketUpdateTileEntity {
-        val nbt = NBTTagCompound()
-        writeToNBT(nbt)
-        return SPacketUpdateTileEntity(pos, 1, nbt)
+    override fun getUpdatePacket(): SUpdateTileEntityPacket {
+        val nbt = CompoundNBT()
+        write(nbt)
+        return SUpdateTileEntityPacket(pos, 1, nbt)
     }
 }
