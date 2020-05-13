@@ -1,0 +1,97 @@
+{
+  "_comment": "MISC",
+  "itemGroup.betterrecords": "Better Records",
+  "betterrecords.version.newAvailable": "A new version of BetterRecords is available!",
+  "betterrecords.warning": "WARNING: Parts of Better Records make use of flashing lights. To disable them, set flashMode to 0 in the config.",
+
+  "_comment": "Items & Blocks",
+  "_comment": "# Items",
+  "item.betterrecords.frequencycrystal.blank": "Frequency Crystal",
+
+  "item.betterrecords.wire": "Speaker Wire",
+  "item.betterrecords.wirecutters": "Wire Cutters",
+
+  "_comment": "## Record",
+  "item.betterrecords.record.blank": "Blank Record",
+  "item.betterrecords.record.multi": "Multi Record",
+
+  "item.betterrecords.record.desc.by": "By: %s",
+
+  "item.betterrecords.record.desc.song": "Song %d: %s",
+
+  "item.betterrecords.record.desc.size": "Size: %dmb",
+
+  "item.betterrecords.multirecord.desc.song": "Song %d: %s",
+
+  "item.betterrecords.record.desc.repeatable": "Repeat Enabled",
+  "item.betterrecords.record.desc.shufflable": "Shuffle Enabled",
+
+  "_comment": "# Blocks",
+  "block.betterrecords.recordetcher": "Record Etcher",
+  "block.betterrecords.recordplayer": "Record Player",
+  "block.betterrecords.frequencytuner": "Frequency Tuner",
+  "block.betterrecords.radio": "Radio",
+
+  "block.betterrecords.speaker.small": "Small Speaker",
+  "block.betterrecords.speaker.medium": "Medium Speaker",
+  "block.betterrecords.speaker.large": "Large Speaker",
+
+  "block.betterrecords.strobelight": "Strobe Light",
+  "block.betterrecords.laser": "Laser",
+  "block.betterrecords.lasercluster": "Laser Cluster",
+
+  "_comment": "## Laser messages",
+  "block.betterrecords.laser.msg.increase": "Laser length increased to %d",
+  "block.betterrecords.laser.msg.decrease": "Laser length decreased to %d",
+
+  "_comment": "GUI",
+  "_comment": "# Shared GUI Strings",
+  "gui.betterrecords.label": "Name",
+  "gui.betterrecords.label.url": "URL",
+  "gui.betterrecords.status.validating": "Validating...",
+
+  "gui.betterrecords.status.noName": "Please insert a name",
+  "gui.betterrecords.status.nameTooShort": "Name is not long enough",
+  "gui.betterrecords.status.noUrl": "Please insert a URL",
+  "gui.betterrecords.status.urlUnavailable": "URL unavailable (Does it exist?)",
+  "gui.betterrecords.status.invalidUrl": "Invalid URL",
+  "gui.betterrecords.status.ioException": "IO Exception",
+
+  "_comment": "# Record Etcher",
+  "gui.betterrecords.recordetcher.etch": "Etch",
+  "gui.betterrecords.recordetcher.ready": "Ready to Etch!",
+  "gui.betterrecords.recordetcher.status.noRecord": "No record to etch",
+  "gui.betterrecords.recordetcher.status.notBlank": "Not a blank record",
+  "gui.betterrecords.recordetcher.status.fileTooBig": "Max file size is %dmb",
+  "gui.betterrecords.recordetcher.status.invalidFile": "Invalid file",
+  "gui.betterrecords.recordetcher.status.multiplayer": "Local files are singleplayer only",
+  "gui.betterrecords.recordetcher.status.encodingNotSupported": "%s is not supported",
+
+  "_comment": "# Frequency Tuner",
+  "gui.betterrecords.frequencytuner.tune": "Tune",
+  "gui.betterrecords.frequencytuner.ready": "Tuner ready!",
+  "gui.betterrecords.frequencytuner.status.noCrystal": "No crystal to tune",
+  "gui.betterrecords.frequencytuner.status.notBlank": "Crystal already tuned",
+  "gui.betterrecords.frequencytuner.status.invalidUrl": "Invalid Icy Stream URL",
+
+  "_comment": "Overlay",
+  "betterrecords.overlay.downloading": "Downloading: %s",
+  "betterrecords.overlay.nowplaying": "Now Playing: %s",
+  "betterrecords.overlay.error.pleaseWait": "Error: Please wait for song to finish downloading...",
+  "betterrecords.overlay.error.cantReadStream": "Error: Could not read stream.",
+  "betterrecords.overlay.error.cantReadFile": "Error: Could not read file.",
+
+  "_comment": "Config",
+  "betterrecords.config.title": "BetterRecords Config",
+  "betterrecords.general.maxspeakerradius": "Max Speaker Radius",
+
+  "betterrecords.general.client": "Client",
+  "betterrecords.general.client.downloadsongs": "Download Songs",
+  "betterrecords.general.client.devmode": "Dev Mode",
+  "betterrecords.general.client.downloadmax": "Download Max",
+  "betterrecords.general.client.playwhiledownloading": "Play While Downloading",
+  "betterrecords.general.client.streambuffer": "Stream Buffer",
+  "betterrecords.general.client.streamradio": "Stream Radio",
+  "betterrecords.general.client.flashmode": "Flash Mode",
+  "betterrecords.general.client.loaddefaultlibraries": "Load Default Libraries"
+}
