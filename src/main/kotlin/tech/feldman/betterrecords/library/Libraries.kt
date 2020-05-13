@@ -59,10 +59,10 @@ import java.util.function.Supplier
 object Libraries {
 
     /** The directory where local libraries are stored */
-    private val LOCAL_LIBRARY_DIR = DistExecutor.runForDist(
+    private val LOCAL_LIBRARY_DIR = File(DistExecutor.runForDist(
             { Supplier { Minecraft.getInstance().gameDir } },
             { Supplier { File(".") }}
-    )
+    ), "betterrecords/library")
 
     /** All of the library files that have been loaded */
     val libraries = mutableListOf<Library>()

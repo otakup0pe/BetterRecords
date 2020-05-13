@@ -58,6 +58,7 @@ minecraft {
         client {
             properties 'forge.logging.console.level': 'debug'
             properties 'fml.earlyprogresswindow': 'false'
+            workingDirectory project.file('run')
             mods {
                 betterrecords {
                     source sourceSets.main
