@@ -24,60 +24,35 @@
 package tech.feldman.betterrecords.client.handler
 
 import tech.feldman.betterrecords.ID
-import tech.feldman.betterrecords.ModConfig
 import tech.feldman.betterrecords.block.tile.TileRadio
 import tech.feldman.betterrecords.client.sound.SoundManager
 import tech.feldman.betterrecords.api.sound.Sound
 import tech.feldman.betterrecords.helper.nbt.getSounds
 import tech.feldman.betterrecords.network.PacketRadioPlay
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.text.Style
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TextComponentTranslation
-import net.minecraft.util.text.TextFormatting
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.relauncher.Side
 
 /**
- * Handler to warn the player when they log in about flashing lights.
+ * Handler to start streams when a player logs in
  */
 @Mod.EventBusSubscriber(modid = ID, value = [Side.CLIENT])
-object DisclaimerHandler {
+object DimensionHandler {
 
     /**
-     * Send a message to the player warning them if it is their first time joining a world
+     * Starts available streams when a player logs in to the world
      *
-     * We do this by checking if flashMode is -1.
-     * If for any reason they set it back to -1, they will be warned again.
      */
     @SubscribeEvent
-    fun onFirstJoin(event: EntityJoinWorldEvent) {
-        if (event.entity is EntityPlayer && ModConfig.client.flashMode == -1) {
-
-            val message = TextComponentTranslation("betterrecords.warning").apply {
-                style = Style().apply {
-                    color = TextFormatting.GREEN
-                }
-            }
-            event.entity.sendMessage(message)
-
-            // Update default flash mode, to show we've already warned them
-            ModConfig.client.flashMode = 1
-            ModConfig.update()
-        }
-    }
-
-    @SubscribeEvent
-    fun loggedInEvent(event: PlayerLoggedInEvent) {
+    fun dimensionChangeEvent(event: PlayerChangedDimensionEvent) {
         val world = event.player.getEntityWorld()
         val tiles = world.loadedTileEntityList
         tiles.forEach {
             if ( it is TileRadio ) {
                 if (it.crystal != null) {
-                   SoundManager.queueStreamAt(it.pos, 0, getSounds(it.crystal).first())
+                   SoundManager.queueStreamAt(it.pos, event.player.dimension, getSounds(it.crystal).first())
                 }
             }
         }

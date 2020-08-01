@@ -25,6 +25,8 @@ package tech.feldman.betterrecords.client.sound
 
 import tech.feldman.betterrecords.api.sound.Sound
 import net.minecraft.util.math.BlockPos
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent
 import kotlin.concurrent.thread
 
 object SoundManager {
@@ -48,6 +50,10 @@ object SoundManager {
     }
 
     fun queueStreamAt(pos: BlockPos, dimension: Int, sound: Sound) {
+        val jobkey = Pair(pos, dimension)
+        if (jobkey in jobs) {
+            return
+        }
         val job = thread {
             SoundPlayer.playSoundFromStream(pos, dimension, sound)
         }
@@ -59,5 +65,15 @@ object SoundManager {
         SoundPlayer.stopPlayingAt(pos, dimension)
         jobs[Pair(pos, dimension)]?.stop()
         jobs.remove(Pair(pos, dimension))
+    }
+
+    @SubscribeEvent
+    fun loggedOutEvent(event: PlayerLoggedOutEvent) {
+        jobs.forEach() {
+            (jobkey, thread) ->
+                        val pos = jobkey.first
+                        val dimension = jobkey.second
+                        stopQueueAt(pos, dimension)
+        }
     }
 }
