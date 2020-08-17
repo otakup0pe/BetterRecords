@@ -55,6 +55,14 @@ open class ResumeHandler {
                     val radioPacket = PacketSoundStop(it.pos, player.dimension)
                     PacketHandler.sendToPlayer(radioPacket, player)
                 } else {
+                    val streamKey = Pair(it.pos, player.dimension)
+                    if (player in streams) {
+                        val playerStreams = player[streams] as List<Pair<BlockPos, Int>>
+                        if (playerStreams.contains(streamKey)) return
+                        streams[player] = playerStreams += streamKey
+                    } else {
+                        streams[player] = listOf(streamKey)
+                    }
                     if (it.crystal != null) {
                         val player = event.entity as EntityPlayerMP
                         val crystalSounds = getSounds(it.crystal)
