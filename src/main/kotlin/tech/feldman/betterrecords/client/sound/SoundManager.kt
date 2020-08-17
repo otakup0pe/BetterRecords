@@ -30,7 +30,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent
 import kotlin.concurrent.thread
 
 object SoundManager {
-
     private val jobs = hashMapOf<Pair<BlockPos, Int>, Thread>()
 
     fun queueSongsAt(pos: BlockPos, dimension: Int, sounds: List<Sound>, shuffle: Boolean = false, repeat: Boolean = false) {
@@ -51,9 +50,7 @@ object SoundManager {
 
     fun queueStreamAt(pos: BlockPos, dimension: Int, sound: Sound) {
         val jobkey = Pair(pos, dimension)
-        if (jobkey in jobs) {
-            return
-        }
+        if (jobkey in jobs) return
         val job = thread {
             SoundPlayer.playSoundFromStream(pos, dimension, sound)
         }
@@ -62,9 +59,11 @@ object SoundManager {
     }
 
     fun stopQueueAt(pos: BlockPos, dimension: Int) {
+        val jobkey = Pair(pos, dimension)
+        if (jobkey !in jobs) return
         SoundPlayer.stopPlayingAt(pos, dimension)
-        jobs[Pair(pos, dimension)]?.stop()
-        jobs.remove(Pair(pos, dimension))
+        jobs[jobkey]?.stop()
+        jobs.remove(jobkey)
     }
 
     @SubscribeEvent

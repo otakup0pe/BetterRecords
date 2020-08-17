@@ -69,17 +69,4 @@ object DisclaimerHandler {
             ModConfig.update()
         }
     }
-
-    @SubscribeEvent
-    fun loggedInEvent(event: PlayerLoggedInEvent) {
-        val world = event.player.getEntityWorld()
-        val tiles = world.loadedTileEntityList
-        tiles.forEach {
-            if ( it is TileRadio ) {
-                if (it.crystal != null) {
-                   SoundManager.queueStreamAt(it.pos, 0, getSounds(it.crystal).first())
-                }
-            }
-        }
-    }
 }
