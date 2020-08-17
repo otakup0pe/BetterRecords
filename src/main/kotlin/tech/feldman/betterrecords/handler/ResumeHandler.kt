@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent
 
 open class ResumeHandler {
-    private val streams = hashMapOf<EntityPlayerMP, List<Pair<BlockPos, Int>>>()
+    private val streams = mutableMapOf<EntityPlayerMP, MutableList<Pair<BlockPos, Int>>>()
 
     @SubscribeEvent
     fun onPlayerMoved(event: LivingUpdateEvent) {
@@ -50,21 +50,26 @@ open class ResumeHandler {
                 val radioDistance = event.entity.getDistance(it.pos.x.toDouble(),
                                                              it.pos.y.toDouble(),
                                                              it.pos.z.toDouble())
+                val player = event.entity as EntityPlayerMP
+                val streamKey = Pair(it.pos, player.dimension)
+                val playerStreams: MutableList<Pair<BlockPos, Int>>? = streams[player]
                 if ( radioDistance > it.songRadius) {
-                    val player = event.entity as EntityPlayerMP
-                    val radioPacket = PacketSoundStop(it.pos, player.dimension)
-                    PacketHandler.sendToPlayer(radioPacket, player)
-                } else {
-                    val streamKey = Pair(it.pos, player.dimension)
-                    if (player in streams) {
-                        val playerStreams = player[streams] as List<Pair<BlockPos, Int>>
-                        if (playerStreams.contains(streamKey)) return
-                        streams[player] = playerStreams += streamKey
-                    } else {
-                        streams[player] = listOf(streamKey)
+                    if (playerStreams == null) return
+                    if (playerStreams.contains(streamKey)) {
+                        val radioPacket = PacketSoundStop(it.pos, player.dimension)
+                        PacketHandler.sendToPlayer(radioPacket, player)
+                        playerStreams.remove(streamKey)
+                        streams[player] = playerStreams
                     }
+                } else {
                     if (it.crystal != null) {
-                        val player = event.entity as EntityPlayerMP
+                        if (playerStreams != null) {
+                            if (playerStreams.contains(streamKey)) return
+                            playerStreams.add(streamKey)
+                            streams[player] = playerStreams
+                        } else {
+                            streams[player] = mutableListOf(streamKey)
+                        }
                         val crystalSounds = getSounds(it.crystal)
                         if (crystalSounds.size == 0) return
                         val radioSounds = crystalSounds.first()
