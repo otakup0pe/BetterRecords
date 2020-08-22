@@ -35,6 +35,9 @@ import tech.feldman.betterrecords.network.PacketRadioPlay
 import tech.feldman.betterrecords.network.PacketSoundStop
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent
 
 open class ResumeHandler {
     private val streams = mutableMapOf<EntityPlayerMP, MutableList<Pair<BlockPos, Int>>>()
@@ -45,17 +48,21 @@ open class ResumeHandler {
         if (event.entity.world.isRemote) return;
         val world = event.entity.getEntityWorld()
         val tiles = world.loadedTileEntityList
+        val player = event.entity as EntityPlayerMP
+        // race condition where event goes out before
+        // client side soundmanager is ready
+        if (player.ticksExisted < 40 ) return;
         tiles.forEach {
             if ( it is TileRadio ) {
                 val radioDistance = event.entity.getDistance(it.pos.x.toDouble(),
                                                              it.pos.y.toDouble(),
                                                              it.pos.z.toDouble())
-                val player = event.entity as EntityPlayerMP
                 val streamKey = Pair(it.pos, player.dimension)
                 val playerStreams: MutableList<Pair<BlockPos, Int>>? = streams[player]
+                if (playerStreams == null) return
                 if ( radioDistance > it.songRadius) {
-                    if (playerStreams == null) return
                     if (playerStreams.contains(streamKey)) {
+                        BetterRecords.logger.debug("Removing radio stream for ${player.name} at ${it.pos} in ${player.dimension} due to being out of range")
                         val radioPacket = PacketSoundStop(it.pos, player.dimension)
                         PacketHandler.sendToPlayer(radioPacket, player)
                         playerStreams.remove(streamKey)
@@ -63,13 +70,10 @@ open class ResumeHandler {
                     }
                 } else {
                     if (it.crystal != null) {
-                        if (playerStreams != null) {
-                            if (playerStreams.contains(streamKey)) return
-                            playerStreams.add(streamKey)
-                            streams[player] = playerStreams
-                        } else {
-                            streams[player] = mutableListOf(streamKey)
-                        }
+                        if (playerStreams.contains(streamKey)) return
+                        BetterRecords.logger.debug("Adding radio stream for ${player.name} at ${it.pos} in ${player.dimension}")
+                        playerStreams.add(streamKey)
+                        streams[player] = playerStreams
                         val crystalSounds = getSounds(it.crystal)
                         if (crystalSounds.size == 0) return
                         val radioSounds = crystalSounds.first()
@@ -85,5 +89,45 @@ open class ResumeHandler {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    fun onLoggedIn(event: EntityJoinWorldEvent) {
+        if (event.entity !is EntityPlayerMP) return;
+        val player = event.entity as EntityPlayerMP
+        if (player.world.isRemote) return;
+        val playerStreams: MutableList<Pair<BlockPos, Int>>? = streams[player]
+        if (playerStreams != null) return;
+        streams[player] = mutableListOf<Pair<BlockPos, Int>>()
+        BetterRecords.logger.debug("Registered ${player.name} for stream tracking")
+    }
+
+    @SubscribeEvent
+    fun onLoggedOut(event: PlayerLoggedOutEvent) {
+        val player = event.player as EntityPlayerMP
+        if (player.world.isRemote) return;
+        streams.remove(player)
+        BetterRecords.logger.debug("Removed all streams for ${player.name}")
+    }
+
+    @SubscribeEvent
+    fun onDimensionChange(event: PlayerChangedDimensionEvent) {
+        if (event.player.world.isRemote) return;
+        val player = event.player as EntityPlayerMP
+        val playerStreams: MutableList<Pair<BlockPos, Int>>? = streams[player]
+        if (playerStreams == null ) return;
+        with (playerStreams.iterator()) {
+             forEach() {
+                     val pos = it.first
+                     val dimension = it.second
+                     if (event.fromDim == dimension ) {
+                         BetterRecords.logger.debug("Removing radio stream for ${player.name} at ${pos} in ${dimension} due to dimensional shift")
+                         val radioPacket = PacketSoundStop(pos, dimension)
+                         PacketHandler.sendToPlayer(radioPacket, player)
+                         remove()
+                     }
+             }
+        }
+        streams[player] = playerStreams
     }
 }

@@ -38,7 +38,7 @@ import net.minecraftforge.fml.relauncher.Side
 @Mod.EventBusSubscriber(modid = ID, value = [Side.CLIENT])
 object SoundEventHandler {
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     fun onRecordInserted(event: RecordInsertEvent) {
         val (pos, dimension, playRadius, sounds, repeat) = event
         val player = Minecraft.getMinecraft().player
@@ -50,7 +50,7 @@ object SoundEventHandler {
 
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     fun onRadioInserted(event: RadioInsertEvent) {
         val (pos, dimension, playRadius, sound) = event
         val player = Minecraft.getMinecraft().player
@@ -61,7 +61,7 @@ object SoundEventHandler {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     fun onSoundStopped(event: SoundStopEvent) {
         val (pos, dimension) = event
 
